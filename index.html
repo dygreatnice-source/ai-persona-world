@@ -4668,7 +4668,7 @@ function pbUpdateModeUI(){
   if(PB.mode==='gallery'&&PB.photoUrls.length){ still.src=PB.photoUrls[0]; still.style.display='block'; }
   else still.style.display='none';
   badge.style.display='block';
-  if(badge && PB.cuts.length>=4 && !PB.busy) badge.textContent='4 / 4';
+  if(badge && !PB.busy) badge.textContent=(PB.cuts.length?Math.min(PB.cuts.length,4):1)+' / 4';
   var txt='';
   if(PB.mode==='camera'){
     if(PB.cam==='on') txt='📷 전면 카메라 · 거울처럼 좌우반전돼요. 3·2·1 뒤에 찰칵!';
