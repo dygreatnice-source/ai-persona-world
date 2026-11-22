@@ -48,7 +48,9 @@ python3 -m http.server 8000
 - localStorage가 막힌 환경(시크릿 모드 등)에서도 오류 없이 메모리로만 동작합니다.
 
 ## 배포
-- GitHub Pages(**main** / root): https://dygreatnice-source.github.io/ai-persona-world/
+- **GitHub Pages**: https://dygreatnice-source.github.io/ai-persona-world/ (HTTP 200)
 - 저장소: https://github.com/dygreatnice-source/ai-persona-world
+- Pages 소스는 `gh-pages` 브랜치(root)이고, `main`과 내용이 같습니다. 수정할 때는 두 브랜치에 함께 push합니다.
+  - `main`을 소스로 쓰려면 저장소 **Settings → Pages → Source**를 `main / (root)`으로 바꾸면 됩니다.
 - `preview/` 폴더의 스크린샷은 배포본에 포함하지 않아도 됩니다.
   - `02_avatar_outfits.png` (모바일 390×844 아바타 메이커 · 새 의상), `outfit_samples.png` (새 의상 8종 샘플 그리드), `11_card_png.png` (결과 카드 PNG 원본) 등
