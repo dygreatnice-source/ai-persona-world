@@ -442,6 +442,35 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:0;backg
 .bonusbar b{font-family:'Press Start 2P',monospace;font-size:11px;color:var(--gold)}
 #toast.on{opacity:1;transform:translate(-50%,0)}
 .foot{margin:22px 0 0;font-size:10px;color:#6E69A4;line-height:1.6;text-align:center}
+/* ===== photo booth (네컷) ===== */
+#s16 .pb-themes{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 8px;scrollbar-width:none}
+#s16 .pb-themes::-webkit-scrollbar{display:none}
+.pb-theme{flex:0 0 auto;width:78px;padding:0;background:#100F35;border:2px solid var(--line);box-shadow:0 3px 0 var(--ink-dark);cursor:pointer;text-align:center}
+.pb-theme .sw{display:block;height:38px}
+.pb-theme .nm{display:block;font-size:9px;font-weight:900;padding:4px 2px 5px;color:var(--ink);letter-spacing:-0.03em;line-height:1.2}
+.pb-theme.on{border-color:var(--mint);box-shadow:0 0 0 2px rgba(92,230,176,.5),0 3px 0 var(--ink-dark)}
+.pb-theme.on .nm{color:var(--mint)}
+.pb-stage{position:relative;width:100%;aspect-ratio:4/3;background:#0B0A26;border:2px solid var(--line2);box-shadow:0 0 0 2px var(--ink-dark),0 6px 0 var(--ink-dark);overflow:hidden}
+.pb-stage video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1);background:#0B0A26}
+.pb-stage .pb-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none}
+#pbAvatarW{position:absolute;right:1%;bottom:0;width:44%;aspect-ratio:48/64;pointer-events:none;filter:drop-shadow(0 3px 0 rgba(0,0,0,.35))}
+#pbAvatarW canvas{display:block;width:100%;height:100%}
+.pb-off{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:7px;text-align:center;padding:16px;background:linear-gradient(180deg,rgba(23,21,66,.96),rgba(12,11,38,.96))}
+.pb-off b{font-size:12.5px;color:var(--gold)}
+.pb-off span{font-size:11px;font-weight:700;color:var(--dim);line-height:1.5}
+.pb-num{position:absolute;left:8px;top:8px;background:var(--gold);color:var(--ink-dark);font-family:ui-monospace,'Courier New',monospace;font-weight:700;font-size:10px;padding:4px 7px;letter-spacing:.08em;display:none}
+.pb-flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
+.pb-flash.on{animation:pbflash .52s ease-out}
+@keyframes pbflash{0%{opacity:0}7%{opacity:.96}100%{opacity:0}}
+.pb-count{position:absolute;inset:0;display:none;align-items:center;justify-content:center;font-family:ui-monospace,'Courier New',monospace;font-weight:700;font-size:76px;color:#fff;text-shadow:0 0 22px rgba(92,230,176,.85),0 6px 0 #0A0922;pointer-events:none}
+.pb-count.on{display:flex}
+.pb-shots{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px}
+.pb-shots .slot{position:relative;aspect-ratio:4/3;background:#0B0A26;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:9.5px;font-weight:900;color:#6D68A6;overflow:hidden}
+.pb-shots .slot img{width:100%;height:100%;object-fit:cover;display:block}
+.pb-shots .slot.done{border-color:var(--mint)}
+.pb-shots .slot b{position:absolute;left:3px;top:3px;font-size:8px;background:rgba(10,9,34,.72);color:#fff;padding:1px 3px;font-family:ui-monospace,monospace}
+#pbResultImg{display:block;width:100%;height:auto;border:2px solid var(--ink-dark);background:#0B0A26;-webkit-touch-callout:default}
+.pb-file{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;left:-9999px}
 @media (max-width:360px){
   :root{--pad:12px}
   .title{font-size:36px}
@@ -772,6 +801,11 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:0;backg
     <div id="cardPreview"></div>
     <div style="height:14px"></div>
     <button class="btn btn--mint" id="btnSavePng">결과 카드 저장하기 (PNG) ↓</button>
+    <div style="height:10px"></div>
+    <button class="btn btn--coral" id="btnPhotobooth" style="flex-direction:column;gap:3px;min-height:66px;padding:10px 12px">
+      <span>📸 페르소나랑 네컷 찍기</span>
+      <span style="font-size:10.5px;font-weight:700;opacity:.78;letter-spacing:0">4컷 인생네컷 · 저장해서 패들렛에 올리기</span>
+    </button>
     <div style="height:14px"></div>
     <button class="btn btn--gold" id="btnBonus2" style="display:none">BONUS STAGE ▶</button>
     <div style="height:10px"></div>
@@ -875,6 +909,63 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:0;backg
     <div style="height:14px"></div>
     <button class="btn btn--ghost btn--sm" id="btnDataBack">보너스로 ◀</button>
     <div style="height:14px"></div>
+  </section>
+
+  <!-- ============ PHOTO BOOTH : 네컷 ============ -->
+  <section class="screen" data-screen="16" id="s16">
+    <div class="hud"><span class="chip chip--coral">PHOTO BOOTH</span><span class="nick" id="hudNick16"></span></div>
+    <h2 class="h2">페르소나랑 <span class="mint">네컷</span> 📸</h2>
+    <p class="lead">내 픽셀 아바타와 함께 인생네컷을 찍어요.<br>카메라가 안 되면 <b>사진첩</b>이나 <b>아바타 단독</b>으로도 찍을 수 있어요.</p>
+
+    <div class="stepbar"><span class="step on">01</span><span>프레임 테마</span></div>
+    <div class="pb-themes" id="pbThemes"></div>
+
+    <div class="stepbar"><span class="step on">02</span><span>구도 잡고 4컷</span></div>
+    <div class="pb-stage" id="pbStage">
+      <video id="pbVideo" playsinline autoplay muted></video>
+      <img class="pb-img" id="pbStill" alt="고른 사진 미리보기">
+      <div id="pbAvatarW"><canvas id="pbAvatar"></canvas></div>
+      <div class="pb-num" id="pbNum">1 / 4</div>
+      <div class="pb-count" id="pbCount">3</div>
+      <div class="pb-flash" id="pbFlash"></div>
+      <div class="pb-off" id="pbOff">
+        <b>카메라를 쓸 수 없어요</b>
+        <span>아래 <b style="color:var(--mint)">🖼️ 사진첩에서 고르기</b> 또는<br><b style="color:var(--mint)">🤖 아바타 단독</b>으로도 네컷을 만들 수 있어요.</span>
+      </div>
+    </div>
+    <div class="pb-shots" id="pbShots"></div>
+    <div style="height:12px"></div>
+    <button class="btn btn--coral" id="btnPbShoot">🎬 4컷 촬영 시작</button>
+    <div style="height:8px"></div>
+    <div class="btn-row">
+      <button class="btn btn--ghost btn--sm" id="btnPbGallery">🖼️ 사진첩에서 고르기</button>
+      <button class="btn btn--ghost btn--sm" id="btnPbAvatarOnly">🤖 아바타 단독</button>
+    </div>
+    <div style="height:8px"></div>
+    <button class="btn btn--ghost btn--sm" id="btnPbCamera">📷 카메라 켜기 / 다시 시도</button>
+    <input class="pb-file" id="pbFile" type="file" accept="image/*" multiple>
+    <p class="mini" id="pbMode">📷 카메라를 준비하고 있어요…</p>
+    <p class="mini" style="margin-top:6px">🔒 찍은 사진은 <b>이 기기 안에서만</b> 쓰고 서버로 보내지 않아요.</p>
+
+    <div id="pbResult" style="display:none;margin-top:16px">
+      <div class="stepbar"><span class="step on">03</span><span>네컷 완성 · 저장</span></div>
+      <img id="pbResultImg" alt="내 페르소나 네컷 사진">
+      <div style="height:12px"></div>
+      <button class="btn btn--mint" id="btnPbSave">💾 네컷 사진 저장하기</button>
+      <div style="height:8px"></div>
+      <div class="btn-row">
+        <button class="btn btn--ghost btn--sm" id="btnPbRetake">🔄 다시 찍기</button>
+        <button class="btn btn--gold btn--sm" id="btnPbToCard">발표 카드로 ▶</button>
+      </div>
+      <div class="note note--gold" style="margin-top:12px">
+        <span class="ico">📌</span>
+        <span><b>패들렛에 올리는 법</b><br>저장한 네컷 사진을 선생님이 안내한 패들렛에 올려보세요!<br>사진을 <b>길게 눌러</b> ‘이미지 저장’ → 패들렛 게시판에서 <b>파일 첨부</b>.</span>
+      </div>
+      <p class="mini">저장 버튼이 안 되면 사진을 <b>길게 눌러</b> 이미지로 저장해요.</p>
+    </div>
+    <div style="height:14px"></div>
+    <button class="btn btn--ghost btn--sm" id="btnPbBack">발표 카드로 ◀</button>
+    <div style="height:16px"></div>
   </section>
 
   <p class="foot">AI PERSONA WORLD · 회천중학교 AI 디지털 융합 체험 수업<br>겉모습 + 성향 + 행동 규칙 = AI 페르소나</p>
@@ -2118,7 +2209,7 @@ function drawHairFront(g,st,c,lt,dk,deep){
 }
 
 /* ---------------- 조립 ---------------- */
-function buildAvatarGrid(cfg,blink,pose){
+function buildAvatarGrid(cfg,blink,pose,faceOv){
   var c=normCfg(cfg);
   var g=newGrid();
   var hairO=HAIR_COLORS[c.hairColor], skinO=SKIN_COLORS[c.skin], outO=OUTFIT_COLORS[c.outfit];
@@ -2152,11 +2243,12 @@ function buildAvatarGrid(cfg,blink,pose){
   /* 코 */
   g.px(24,24,skinSh);
   /* 눈·입 */
-  drawEyes(g,c.face,blink,eyeDark,lash,white,mid,gold);
-  drawMouth(g,c.face,'#7A2340','#E4698A',white);
+  var faceIx=(faceOv==null)?c.face:faceOv;
+  drawEyes(g,faceIx,blink,eyeDark,lash,white,mid,gold);
+  drawMouth(g,faceIx,'#7A2340','#E4698A',white);
   /* 눈썹 */
-  if(c.face===3){ g.px(16,17,'rgba(60,45,90,0.55)'); g.px(17,17,'rgba(60,45,90,0.55)'); g.px(20,17,'rgba(60,45,90,0.55)'); }
-  if(c.face===3){ g.px(27,17,'rgba(60,45,90,0.55)'); g.px(28,17,'rgba(60,45,90,0.55)'); g.px(31,17,'rgba(60,45,90,0.55)'); }
+  if(faceIx===3){ g.px(16,17,'rgba(60,45,90,0.55)'); g.px(17,17,'rgba(60,45,90,0.55)'); g.px(20,17,'rgba(60,45,90,0.55)'); }
+  if(faceIx===3){ g.px(27,17,'rgba(60,45,90,0.55)'); g.px(28,17,'rgba(60,45,90,0.55)'); g.px(31,17,'rgba(60,45,90,0.55)'); }
 
   /* 앞머리 · 액세서리 */
   drawHairFront(g,c.hair,hair,hairLt,hairDk,hairDeep);
@@ -2167,11 +2259,12 @@ function buildAvatarGrid(cfg,blink,pose){
 
 /* ---------------- 스프라이트 캐시 ---------------- */
 var _sprCache={}, _sprCount=0;
-function spriteFor(cfg,blink,pose){
+function spriteFor(cfg,blink,pose,faceOv){
   var c=normCfg(cfg);
-  var key=c.hair+'.'+c.hairColor+'.'+c.face+'.'+c.skin+'.'+c.outfit+'.'+c.outfitStyle+'.'+c.acc+'.'+(blink?1:0)+'.'+(pose==null?-1:pose);
+  var fk=(faceOv==null)?'':('f'+faceOv);
+  var key=c.hair+'.'+c.hairColor+'.'+c.face+'.'+c.skin+'.'+c.outfit+'.'+c.outfitStyle+'.'+c.acc+'.'+(blink?1:0)+'.'+(pose==null?-1:pose)+'.'+fk;
   if(_sprCache[key]) return _sprCache[key];
-  var g=buildAvatarGrid(c,blink,pose);
+  var g=buildAvatarGrid(c,blink,pose,faceOv);
   var cv=document.createElement('canvas'); cv.width=AV.W; cv.height=AV.H;
   var ctx=cv.getContext('2d'); ctx.imageSmoothingEnabled=false;
   var W=AV.W,H=AV.H, ring=[];
@@ -2373,6 +2466,7 @@ function freshState(){
     similarity:null,
     reflect:{learned:'', want:'', ten:''},
     m3:{actual:null, missed:null, ex:{person:'친한 친구', together:true, action:'참여한다'}, ran:false, basePred:null, bias:{}},
+    pb:{theme:0},
     games:{
       race:{strat:null, done:false, rank:null, time:null},
       quiz:{idx:0, phase:'ask', pick:0, conf:0, kept:0, fixed:0, correct:0, combo:0, results:[], done:false},
@@ -2529,6 +2623,7 @@ function go(n, skipSave){
   if(n!==6) stopWorldLoop();
   if(n!==9) stopRaceLoop();
   if(n!==10 && typeof quizTimerId!=='undefined' && quizTimerId){ clearInterval(quizTimerId); quizTimerId=null; }
+  if(n!==16) pbAbort();
   window.scrollTo(0,0);
   render(n);
   if(!skipSave) save();
@@ -2551,9 +2646,10 @@ function render(n){
   if(n===13) renderLab();
   if(n===14) renderVs();
   if(n===15) renderData();
+  if(n===16) renderPhotobooth();
 }
 function updateHuds(){
-  ['1','2','3','4','5','6','8','9','10','11'].forEach(function(i){
+  ['1','2','3','4','5','6','8','9','10','11','16'].forEach(function(i){
     var el=$('hudNick'+i); if(el) el.textContent = S.nickname?'@'+S.nickname:'';
   });
 }
@@ -4490,6 +4586,499 @@ function dataRun(){
 }
 
 /* =========================================================
+   17-c. PHOTO BOOTH · 페르소나랑 네컷 찍기
+   ========================================================= */
+var PB_THEMES=[
+  {name:'사이버 네이비', bg1:'#1A1750', bg2:'#0A0922', edge:'#B4A7FF', cellEdge:'#B4A7FF', accent:'#5CE6B0', text:'#F4F2FF', label:'#A6A1D6', tag:'#0A0922', kind:'star'},
+  {name:'파스텔 핑크', bg1:'#FFE3EF', bg2:'#FFB9D6', edge:'#FF6B8B', cellEdge:'#FF6B8B', accent:'#E81D62', text:'#3D1428', label:'#9C3E63', tag:'#FFFFFF', kind:'dot'},
+  {name:'네온 민트', bg1:'#06302A', bg2:'#0B1B2A', edge:'#5CE6B0', cellEdge:'#5CE6B0', accent:'#5CE6B0', text:'#E9FFF8', label:'#7FE3C4', tag:'#062621', kind:'grid'},
+  {name:'클래식 블랙', bg1:'#191919', bg2:'#000000', edge:'#FFFFFF', cellEdge:'#F2F2F2', accent:'#FFD15C', text:'#FFFFFF', label:'#C9C9C9', tag:'#0A0922', kind:'film'}
+];
+var PB_TYPE_NAMES={
+  planL:'치밀한 설계자', planR:'즉흥 아이디어뱅크',
+  braveL:'돌진하는 도전자', braveR:'신중한 관찰자',
+  leadL:'앞장서는 리더', leadR:'조용한 협력자',
+  empathyL:'다정한 공감러', empathyR:'차분한 해결사'
+};
+var PB_CW=840, PB_CH=630, PB_MARGIN=30, PB_GAP=16, PB_HEAD=176, PB_FOOT=248;
+var PB_W=PB_CW+PB_MARGIN*2;
+var PB_CELL0=PB_HEAD;
+var PB_H=PB_CELL0+PB_CH*4+PB_GAP*3+PB_FOOT;
+var PB_EXPR=[null,1,6,7]; /* 1컷 기본 · 2컷 활짝 · 3컷 놀람 · 4컷 별눈 */
+var PB={mode:'camera',theme:0,cam:'idle',stream:null,ready:false,photos:[],photoUrls:[],cuts:[],busy:false,lastCanvas:null,timer:null,raf:null,t0:0};
+
+function pbTheme(){ return PB_THEMES[clamp(PB.theme|0,0,PB_THEMES.length-1)]; }
+function pbFont(size,weight,mono){
+  return (weight||700)+' '+Math.round(size)+'px '+(mono?'ui-monospace,"Courier New",Menlo,monospace':'"Noto Sans KR",-apple-system,"Malgun Gothic",sans-serif');
+}
+function pbTypeName(){
+  var axes=(S&&S.axesAdj)?S.axesAdj:((S&&S.axes)?S.axes:{plan:50,brave:50,lead:50,empathy:50});
+  return PB_TYPE_NAMES[dominantKey(axes)]||'나의 페르소나';
+}
+function pbToday(){
+  var d=new Date(), p=function(n){ return (n<10?'0':'')+n; };
+  return d.getFullYear()+'.'+p(d.getMonth()+1)+'.'+p(d.getDate());
+}
+function pbApplyStageTheme(){
+  var th=pbTheme(), st=$('pbStage');
+  if(st) st.style.background='linear-gradient(140deg,'+th.bg1+','+th.bg2+')';
+}
+
+/* ---- 테마 칩 ---- */
+function pbBuildThemes(){
+  var box=$('pbThemes'); if(!box) return;
+  box.innerHTML='';
+  PB_THEMES.forEach(function(t,i){
+    var b=document.createElement('button');
+    b.type='button'; b.className='pb-theme'+(i===PB.theme?' on':'');
+    b.setAttribute('aria-pressed', i===PB.theme?'true':'false');
+    b.innerHTML='<span class="sw" style="background:linear-gradient(140deg,'+t.bg1+','+t.bg2+');box-shadow:inset 0 0 0 3px '+t.edge+'"></span><span class="nm">'+esc(t.name)+'</span>';
+    b.addEventListener('click', function(){
+      PB.theme=i;
+      if(!S.pb) S.pb={theme:i};
+      S.pb.theme=i; save();
+      pbBuildThemes(); pbApplyStageTheme(); SFX.sel();
+    });
+    box.appendChild(b);
+  });
+}
+
+/* ---- 4컷 슬롯 ---- */
+function pbRenderShots(){
+  var box=$('pbShots'); if(!box) return;
+  var html='';
+  for(var i=0;i<4;i++){
+    var cut=PB.cuts[i], tag='0'+(i+1);
+    if(cut && cut.url){
+      html+='<div class="slot done"><img alt="컷 '+tag+'" src="'+cut.url+'"><b>'+tag+'</b></div>';
+    }else{
+      html+='<div class="slot"><span>'+tag+'</span></div>';
+    }
+  }
+  box.innerHTML=html;
+}
+
+/* ---- 모드 표시 ---- */
+function pbUpdateModeUI(){
+  var off=$('pbOff'), still=$('pbStill'), vid=$('pbVideo'), badge=$('pbNum'), label=$('pbMode'), shoot=$('btnPbShoot');
+  if(!off||!still||!vid) return;
+  var camDead=(PB.cam==='denied'||PB.cam==='failed'||PB.cam==='unsupported');
+  off.style.display=(PB.mode==='camera'&&camDead)?'flex':'none';
+  vid.style.display=(PB.mode==='camera'&&PB.cam==='on')?'block':'none';
+  if(PB.mode==='gallery'&&PB.photoUrls.length){ still.src=PB.photoUrls[0]; still.style.display='block'; }
+  else still.style.display='none';
+  badge.style.display='block';
+  if(badge && PB.cuts.length>=4 && !PB.busy) badge.textContent='4 / 4';
+  var txt='';
+  if(PB.mode==='camera'){
+    if(PB.cam==='on') txt='📷 전면 카메라 · 거울처럼 좌우반전돼요. 3·2·1 뒤에 찰칵!';
+    else if(PB.cam==='starting') txt='📷 카메라를 켜는 중이에요… 권한 창이 뜨면 ‘허용’을 눌러 주세요.';
+    else if(camDead) txt='카메라를 쓸 수 없어요. 아래 🖼️ 사진첩 또는 🤖 아바타 단독으로 찍어 보세요.';
+    else txt='📷 카메라를 켜면 내 얼굴과 아바타가 함께 찍혀요.';
+    if(shoot) shoot.innerHTML='🎬 4컷 촬영 시작 <span style="font-size:10.5px;font-weight:700;opacity:.72">3·2·1 카운트</span>';
+  }else if(PB.mode==='gallery'){
+    var n=PB.photoUrls.length;
+    txt='🖼️ 사진 '+n+'장 · 고른 순서대로 4컷에 들어가요'+(n&&n<4?' (부족한 컷은 반복)' : '');
+    if(shoot) shoot.innerHTML='🎬 4컷 만들기';
+  }else{
+    txt='🤖 아바타 단독 네컷 · 사진 없이 아바타만 4컷으로 담아요';
+    if(shoot) shoot.innerHTML='🎬 아바타 4컷 만들기';
+  }
+  if(label) label.textContent=txt;
+}
+
+/* ---- 카메라 ---- */
+function pbStartCamera(){
+  if(PB.stream) return;
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
+    PB.cam=(window.isSecureContext===false)?'unsupported':'failed'; pbUpdateModeUI(); return;
+  }
+  PB.cam='starting'; pbUpdateModeUI();
+  var req={video:{facingMode:'user',width:{ideal:1280},height:{ideal:960}},audio:false};
+  navigator.mediaDevices.getUserMedia(req).then(function(st){
+    PB.stream=st; PB.cam='on'; PB.ready=false;
+    var v=$('pbVideo');
+    if(v){
+      v.srcObject=st;
+      v.onloadedmetadata=function(){ PB.ready=true; };
+      var p=v.play(); if(p&&p.catch) p.catch(function(){});
+    }
+    pbUpdateModeUI();
+  }).catch(function(err){
+    var n=(err&&err.name)||'';
+    PB.cam=(n==='NotAllowedError'||n==='SecurityError')?'denied':'failed';
+    pbUpdateModeUI();
+  });
+}
+function pbStopCam(){
+  try{ if(PB.stream) PB.stream.getTracks().forEach(function(t){ try{ t.stop(); }catch(e){} }); }catch(e){}
+  PB.stream=null; PB.cam='idle'; PB.ready=false;
+  var v=$('pbVideo'); if(v){ try{ v.srcObject=null; }catch(e){} }
+  var off=$('pbOff'); if(off) off.style.display='none';
+}
+
+/* ---- 아바타 오버레이 (투명 배경) ---- */
+function pbDrawOverlay(bob){
+  var c=$('pbAvatar'); if(!c||!S) return;
+  var dpr=Math.min(window.devicePixelRatio||1,3);
+  var cw=c.clientWidth||150, ch=c.clientHeight||200;
+  if(c.width!==Math.round(cw*dpr)||c.height!==Math.round(ch*dpr)){ c.width=Math.round(cw*dpr); c.height=Math.round(ch*dpr); }
+  var ctx=c.getContext('2d');
+  ctx.setTransform(1,0,0,1,0,0); ctx.clearRect(0,0,c.width,c.height);
+  var sp=spriteFor(S.avatar,false,0,null);
+  var sc=Math.min(c.width/AV.W, c.height/AV.H);
+  var w=Math.round(AV.W*sc), h=Math.round(AV.H*sc);
+  ctx.imageSmoothingEnabled=false;
+  ctx.drawImage(sp, Math.round((c.width-w)/2), Math.round((c.height-h)/2+(bob||0)*sc), w, h);
+}
+function pbStartOverlay(){
+  pbStopOverlay();
+  if(reduced()){ pbDrawOverlay(0); return; }
+  PB.t0=0;
+  function loop(t){
+    if(!PB.t0) PB.t0=t;
+    pbDrawOverlay(Math.sin((t-PB.t0)/280)*0.75);
+    PB.raf=requestAnimationFrame(loop);
+  }
+  PB.raf=requestAnimationFrame(loop);
+}
+function pbStopOverlay(){ if(PB.raf){ cancelAnimationFrame(PB.raf); PB.raf=null; } }
+function pbAbort(){
+  if(PB.timer){ clearTimeout(PB.timer); PB.timer=null; }
+  PB.busy=false;
+  var el=$('pbCount'); if(el) el.classList.remove('on');
+  pbStopCam(); pbStopOverlay();
+}
+
+/* ---- 소리 · 플래시 ---- */
+function pbShutter(){
+  var c=ac(); if(!c) return;
+  try{
+    var len=Math.floor(c.sampleRate*0.11);
+    var buf=c.createBuffer(1,len,c.sampleRate), d=buf.getChannelData(0);
+    for(var i=0;i<len;i++){ var t=i/len; d[i]=(Math.random()*2-1)*Math.pow(1-t,3); }
+    var src=c.createBufferSource(); src.buffer=buf;
+    var g=c.createGain(); g.gain.value=0.18;
+    src.connect(g); g.connect(c.destination); src.start();
+    tone(1250,0.05,'square',0.04,0.01);
+    tone(700,0.07,'square',0.035,0.1);
+  }catch(e){}
+}
+function pbFlash(){
+  var f=$('pbFlash'); if(!f) return;
+  f.classList.remove('on'); void f.offsetWidth; f.classList.add('on');
+}
+
+/* ---- 촬영 ---- */
+function pbCountdown(done){
+  var el=$('pbCount'); if(!el){ done(); return; }
+  var n=3;
+  el.classList.add('on');
+  function tick(){
+    if(n>0){ el.textContent=String(n); SFX.tick(); n--; PB.timer=setTimeout(tick,800); }
+    else { el.classList.remove('on'); done(); }
+  }
+  tick();
+}
+function pbNormCanvas(){
+  var c=document.createElement('canvas'); c.width=PB_CW; c.height=PB_CH;
+  return c;
+}
+function pbFromVideo(){
+  var v=$('pbVideo');
+  if(!v||!v.videoWidth) return null;
+  var c=pbNormCanvas(), ctx=c.getContext('2d');
+  var vw=v.videoWidth, vh=v.videoHeight;
+  var s=Math.max(PB_CW/vw, PB_CH/vh), dw=vw*s, dh=vh*s;
+  ctx.save(); ctx.translate(PB_CW,0); ctx.scale(-1,1);
+  ctx.drawImage(v,(PB_CW-dw)/2,(PB_CH-dh)/2,dw,dh);
+  ctx.restore();
+  return c;
+}
+function pbFromImage(img){
+  var c=pbNormCanvas(), ctx=c.getContext('2d');
+  var iw=img.naturalWidth||img.width, ih=img.naturalHeight||img.height;
+  var s=Math.max(PB_CW/iw, PB_CH/ih), dw=iw*s, dh=ih*s;
+  ctx.drawImage(img,(PB_CW-dw)/2,(PB_CH-dh)/2,dw,dh);
+  return c;
+}
+function pbPushCut(cv,url){
+  if(!cv){ PB.cuts.push({cv:null,url:null}); pbRenderShots(); return; }
+  var u=url||cv.toDataURL('image/png');
+  PB.cuts.push({cv:cv,url:u});
+  pbRenderShots();
+}
+function pbShoot(){
+  if(PB.busy){ toast('촬영 중이에요. 잠시만요!'); return; }
+  if(PB.mode==='camera'){
+    if(PB.cam!=='on'){ toast('카메라가 꺼져 있어요. 사진첩이나 아바타 단독으로도 찍을 수 있어요'); pbStartCamera(); return; }
+    var v=$('pbVideo');
+    if(!PB.ready||!v||!v.videoWidth){ toast('카메라 준비 중이에요. 1초만 기다려 주세요'); return; }
+  }
+  if(PB.mode==='gallery'&&!PB.photos.length){ $('pbFile').click(); return; }
+  PB.busy=true; PB.cuts=[]; PB.lastCanvas=null;
+  var r=$('pbResult'); if(r) r.style.display='none';
+  pbRenderShots(); pbUpdateModeUI();
+  pbNextCut();
+}
+function pbNextCut(){
+  var i=PB.cuts.length;
+  if(i>=4){ pbFinish(); return; }
+  var badge=$('pbNum'); if(badge) badge.textContent=(i+1)+' / 4';
+  if(PB.mode==='camera'){
+    pbCountdown(function(){
+      pbShutter(); pbFlash();
+      var cv=pbFromVideo();
+      pbPushCut(cv,null);
+      PB.timer=setTimeout(pbNextCut,620);
+    });
+  }else{
+    pbShutter(); pbFlash();
+    var idx=i%Math.max(1,PB.photos.length);
+    var src=(PB.mode==='gallery'&&PB.photos.length)?PB.photos[idx]:null;
+    pbPushCut(src, src?PB.photoUrls[idx]:null);
+    PB.timer=setTimeout(pbNextCut, i<3?380:460);
+  }
+}
+function pbFinish(){
+  PB.busy=false;
+  if(PB.mode==='camera') pbStopCam();   /* 네컷이 끝나면 카메라를 꺼 둔다(배터리·프라이버시) */
+  var c=pbCompose();
+  PB.lastCanvas=c;
+  var img=$('pbResultImg');
+  try{ img.src=c.toDataURL('image/png'); }catch(e){ toast('이미지를 만들 수 없어요. 다시 찍어 주세요'); return; }
+  $('pbResult').style.display='block';
+  SFX.good(); burst(24);
+  setTimeout(function(){ var r=$('pbResult'); if(r) r.scrollIntoView({behavior:'smooth',block:'start'}); },90);
+  toast('네컷 완성! 저장하거나 길게 눌러 이미지로 저장하세요');
+  pbUpdateModeUI();
+}
+
+/* ---- 합성 ---- */
+function pbCellPattern(ctx,th,x,y,w,h,i){
+  ctx.save(); ctx.beginPath(); ctx.rect(x,y,w,h); ctx.clip();
+  var k;
+  if(th.kind==='star'||th.kind==='grid'){
+    for(k=0;k<30;k++){
+      var px=x+((k*137)%w), py=y+((k*211)%h);
+      ctx.fillStyle=k%4===0?'rgba(255,209,92,.7)':'rgba(255,255,255,.45)';
+      ctx.fillRect(px,py,k%6===0?4:3,k%6===0?4:3);
+    }
+    if(th.kind==='grid'){
+      ctx.strokeStyle='rgba(92,230,176,.16)'; ctx.lineWidth=2;
+      for(k=x;k<x+w;k+=44){ ctx.beginPath(); ctx.moveTo(k,y); ctx.lineTo(k,y+h); ctx.stroke(); }
+      for(k=y;k<y+h;k+=44){ ctx.beginPath(); ctx.moveTo(x,k); ctx.lineTo(x+w,k); ctx.stroke(); }
+    }
+  }else if(th.kind==='dot'){
+    for(k=0;k<34;k++){
+      var dx=x+((k*113)%w), dy=y+((k*167)%h);
+      ctx.fillStyle=k%4===0?'rgba(255,255,255,.6)':'rgba(255,107,139,.22)';
+      ctx.fillRect(dx,dy,5,5);
+    }
+  }else{
+    ctx.fillStyle='rgba(255,255,255,.08)';
+    for(k=0;k<6;k++) ctx.fillRect(x+40+k*130,y+30,60,h-60);
+  }
+  var rg=ctx.createRadialGradient(x+w/2,y+h*0.72,10,x+w/2,y+h*0.72,w*0.55);
+  rg.addColorStop(0,'rgba(255,255,255,.22)'); rg.addColorStop(1,'rgba(255,255,255,0)');
+  ctx.fillStyle=rg; ctx.fillRect(x,y,w,h);
+  ctx.restore();
+}
+function pbCell(ctx,th,i,x,y,w,h){
+  var cut=PB.cuts[i], hasPhoto=!!(cut&&cut.cv);
+  ctx.save();
+  ctx.beginPath(); ctx.rect(x,y,w,h); ctx.clip();
+  if(hasPhoto){
+    ctx.imageSmoothingEnabled=true;
+    if('imageSmoothingQuality' in ctx) ctx.imageSmoothingQuality='high';
+    ctx.drawImage(cut.cv,x,y,w,h);
+    ctx.imageSmoothingEnabled=false;
+    var sg=ctx.createLinearGradient(0,y+h*0.52,0,y+h);
+    sg.addColorStop(0,'rgba(10,9,34,0)'); sg.addColorStop(1,'rgba(10,9,34,.5)');
+    ctx.fillStyle=sg; ctx.fillRect(x,y+h*0.52,w,h*0.48);
+  }else{
+    var gg=ctx.createLinearGradient(x,y,x+w,y+h);
+    gg.addColorStop(0,th.bg1); gg.addColorStop(1,th.bg2);
+    ctx.fillStyle=gg; ctx.fillRect(x,y,w,h);
+    pbCellPattern(ctx,th,x,y,w,h,i);
+  }
+  if(S){
+    var avH=hasPhoto?[420,455,405,470][i]:520;
+    var sp=spriteFor(S.avatar,false,0,PB_EXPR[i]);
+    var k=avH/AV.H, aw=AV.W*k;
+    var cx=hasPhoto?((i%2===0)?x+w-38-aw/2:x+38+aw/2):x+w/2;
+    var bottom=hasPhoto?y+h-4:y+h-34;
+    ctx.globalAlpha=.3; ctx.fillStyle='#000';
+    ctx.beginPath(); ctx.ellipse(cx,bottom-8,aw*0.34,12,0,0,Math.PI*2); ctx.fill();
+    ctx.globalAlpha=1;
+    ctx.imageSmoothingEnabled=false;
+    ctx.drawImage(sp,Math.round(cx-aw/2),Math.round(bottom-avH),Math.round(aw),Math.round(avH));
+  }
+  ctx.restore();
+  ctx.strokeStyle=th.cellEdge||th.edge; ctx.lineWidth=6; ctx.strokeRect(x+3,y+3,w-6,h-6);
+  var tag='0'+(i+1);
+  ctx.font=pbFont(22,700,true);
+  var tw=ctx.measureText(tag).width+20;
+  ctx.fillStyle=th.accent; ctx.fillRect(x+12,y+12,tw,34);
+  ctx.fillStyle=th.tag; ctx.textAlign='left';
+  ctx.fillText(tag,x+22,y+37);
+}
+function pbFrameDecor(ctx,th){
+  var i,k;
+  ctx.save();
+  if(th.kind==='star'){
+    for(i=0;i<64;i++){
+      var x=(i*137.7)%PB_W, y=(i*291.3)%PB_H;
+      ctx.fillStyle=i%5===0?'rgba(255,209,92,.6)':(i%3===0?'rgba(180,167,255,.55)':'rgba(255,255,255,.4)');
+      ctx.fillRect(x,y,i%7===0?3:2,i%7===0?3:2);
+    }
+    ctx.strokeStyle=th.accent; ctx.lineWidth=6;
+    [[28,28,1,1],[PB_W-28,28,-1,1],[28,PB_H-28,1,-1],[PB_W-28,PB_H-28,-1,-1]].forEach(function(p){
+      ctx.beginPath(); ctx.moveTo(p[0],p[1]+p[3]*44); ctx.lineTo(p[0],p[1]); ctx.lineTo(p[0]+p[2]*44,p[1]); ctx.stroke();
+    });
+  }else if(th.kind==='dot'){
+    for(i=0;i<80;i++){
+      var x2=(i*97.3)%PB_W, y2=(i*173.9)%PB_H;
+      ctx.fillStyle=i%4===0?'rgba(255,255,255,.65)':'rgba(255,107,139,.22)';
+      ctx.fillRect(x2,y2,4,4);
+    }
+  }else if(th.kind==='grid'){
+    ctx.strokeStyle='rgba(92,230,176,.14)'; ctx.lineWidth=2;
+    for(i=0;i<PB_W;i+=44){ ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,PB_H); ctx.stroke(); }
+    for(i=0;i<PB_H;i+=44){ ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(PB_W,i); ctx.stroke(); }
+  }else{
+    ctx.fillStyle='rgba(255,255,255,.85)';
+    for(i=0;i<PB_H;i+=64){ ctx.fillRect(8,i+14,16,30); ctx.fillRect(PB_W-24,i+14,16,30); }
+  }
+  ctx.restore();
+  ctx.strokeStyle=th.edge; ctx.lineWidth=8;
+  ctx.strokeRect(16,16,PB_W-32,PB_H-32);
+}
+function pbCompose(){
+  var th=pbTheme();
+  var c=document.createElement('canvas'); c.width=PB_W; c.height=PB_H;
+  var ctx=c.getContext('2d');
+  ctx.imageSmoothingEnabled=true;
+  if('imageSmoothingQuality' in ctx) ctx.imageSmoothingQuality='high';
+  var bg=ctx.createLinearGradient(0,0,PB_W,PB_H);
+  bg.addColorStop(0,th.bg1); bg.addColorStop(1,th.bg2);
+  ctx.fillStyle=bg; ctx.fillRect(0,0,PB_W,PB_H);
+  pbFrameDecor(ctx,th);
+
+  /* 헤더 */
+  ctx.textAlign='left'; ctx.textBaseline='alphabetic';
+  ctx.fillStyle=th.accent; ctx.font=pbFont(27,700,true);
+  ctx.fillText('AI PERSONA WORLD',PB_MARGIN,84);
+  ctx.textAlign='right'; ctx.fillStyle=th.label; ctx.font=pbFont(19,700,true);
+  ctx.fillText('FOUR CUT · '+pbToday(),PB_W-PB_MARGIN,84);
+  ctx.fillStyle=th.edge; ctx.globalAlpha=.45; ctx.fillRect(PB_MARGIN,112,PB_W-PB_MARGIN*2,3); ctx.globalAlpha=1;
+
+  /* 4컷 */
+  for(var i=0;i<4;i++) pbCell(ctx,th,i,PB_MARGIN,PB_CELL0+i*(PB_CH+PB_GAP),PB_CW,PB_CH);
+
+  /* 푸터 */
+  var fy=PB_CELL0+PB_CH*4+PB_GAP*3;
+  ctx.textAlign='left';
+  ctx.fillStyle=th.edge; ctx.globalAlpha=.5; ctx.fillRect(PB_MARGIN,fy+14,PB_W-PB_MARGIN*2,3); ctx.globalAlpha=1;
+  var name=(S&&S.nickname)?S.nickname:'PLAYER';
+  var fs=74;
+  ctx.font=pbFont(fs,900);
+  while(ctx.measureText(name).width>PB_W-PB_MARGIN*2-40 && fs>34){ fs-=3; ctx.font=pbFont(fs,900); }
+  ctx.fillStyle=th.text; ctx.fillText(name,PB_MARGIN,fy+104);
+  ctx.font=pbFont(30,700); ctx.fillStyle=th.accent;
+  ctx.fillText(pbTypeName(),PB_MARGIN,fy+152);
+  ctx.font=pbFont(23,700,true); ctx.fillStyle=th.label;
+  ctx.fillText('AI 페르소나와 함께 찍은 네컷 · 회천중학교',PB_MARGIN,fy+194);
+  ctx.textAlign='right';
+  ctx.font=pbFont(24,700,true); ctx.fillStyle=th.label;
+  ctx.fillText(pbToday(),PB_W-PB_MARGIN,fy+152);
+  ctx.font=pbFont(17,700,true); ctx.fillStyle=th.accent; ctx.globalAlpha=.7;
+  ctx.fillText('PHOTO BOOTH',PB_W-PB_MARGIN,fy+194);
+  ctx.globalAlpha=1;
+  return c;
+}
+
+/* ---- 모드 전환 ---- */
+function pbCompactPhotos(){
+  var ps=[],us=[];
+  for(var i=0;i<PB.photos.length;i++){ if(PB.photos[i]){ ps.push(PB.photos[i]); us.push(PB.photoUrls[i]); } }
+  PB.photos=ps; PB.photoUrls=us;
+}
+function pbPickFiles(){
+  var inp=$('pbFile');
+  var files=[].slice.call((inp&&inp.files)||[]).slice(0,4);
+  if(inp) inp.value='';
+  if(!files.length) return;
+  pbStopCam();
+  PB.mode='gallery'; PB.photos=[]; PB.photoUrls=[]; PB.cuts=[]; PB.lastCanvas=null;
+  var r=$('pbResult'); if(r) r.style.display='none';
+  pbRenderShots(); pbUpdateModeUI();
+  var left=files.length;
+  function done(){
+    if(--left>0) return;
+    pbCompactPhotos();
+    pbUpdateModeUI(); pbRenderShots();
+    if(PB.photoUrls.length) toast(PB.photoUrls.length+'장을 불러왔어요 · 4컷 만들기를 눌러요');
+    else toast('사진을 불러오지 못했어요. 다른 사진으로 해 보세요');
+  }
+  files.forEach(function(f,i){
+    var img=new Image();
+    var url=URL.createObjectURL(f);
+    img.onload=function(){
+      try{ var cv=pbFromImage(img); PB.photos[i]=cv; PB.photoUrls[i]=cv.toDataURL('image/png'); }catch(e){}
+      URL.revokeObjectURL(url); done();
+    };
+    img.onerror=function(){ URL.revokeObjectURL(url); done(); };
+    img.src=url;
+  });
+}
+function pbAvatarOnly(){
+  pbStopCam();
+  PB.mode='avatar'; PB.photos=[]; PB.photoUrls=[]; PB.cuts=[]; PB.lastCanvas=null;
+  var r=$('pbResult'); if(r) r.style.display='none';
+  pbRenderShots(); pbUpdateModeUI();
+  toast('아바타 단독 네컷 모드예요');
+}
+function pbRetake(){
+  if(PB.timer){ clearTimeout(PB.timer); PB.timer=null; }
+  PB.busy=false; PB.cuts=[]; PB.lastCanvas=null;
+  var r=$('pbResult'); if(r) r.style.display='none';
+  pbRenderShots(); pbUpdateModeUI();
+  var st=$('pbStage'); if(st) st.scrollIntoView({behavior:'smooth',block:'center'});
+  if(PB.mode==='camera') pbStartCamera();
+}
+
+/* ---- 저장 ---- */
+function pbSave(){
+  if(!PB.lastCanvas){ toast('네컷을 먼저 찍어 주세요'); return; }
+  var c=PB.lastCanvas;
+  var name='AI_PERSONA_4CUT_'+((S&&S.nickname)?S.nickname:'PLAYER').replace(/[\\/:*?"<>|\s]/g,'_')+'.png';
+  try{
+    c.toBlob(function(blob){
+      if(!blob){ fallbackImage(c); return; }
+      var url=URL.createObjectURL(blob);
+      var a=document.createElement('a');
+      a.href=url; a.download=name;
+      document.body.appendChild(a); a.click();
+      setTimeout(function(){ URL.revokeObjectURL(url); a.remove(); },1800);
+      SFX.save(); burst(26);
+      toast('네컷 PNG를 저장했어요!');
+    },'image/png');
+  }catch(e){ fallbackImage(c); }
+}
+
+/* ---- 화면 ---- */
+function renderPhotobooth(){
+  if(S&&S.pb&&typeof S.pb.theme==='number') PB.theme=clamp(S.pb.theme|0,0,PB_THEMES.length-1);
+  pbApplyStageTheme();
+  pbBuildThemes();
+  pbRenderShots();
+  pbUpdateModeUI();
+  pbStartOverlay();
+  if(PB.mode==='camera'&&!PB.stream&&PB.cam!=='denied'&&PB.cam!=='failed'&&PB.cam!=='unsupported') pbStartCamera();
+}
+
+/* =========================================================
    18. 이벤트 연결 · 초기화
    ========================================================= */
 function applyRules(){
@@ -4577,16 +5166,28 @@ function bind(){
   $('btnBackMap').addEventListener('click', function(){ go(6); });
   $('btnBackWorld').addEventListener('click', function(){ go(6); });
   $('btnSavePng').addEventListener('click', savePng);
+  $('btnPhotobooth').addEventListener('click', function(){ SFX.enter(); go(16); });
+  $('btnPbBack').addEventListener('click', function(){ go(8); });
+  $('btnPbToCard').addEventListener('click', function(){ go(8); });
+  $('btnPbShoot').addEventListener('click', pbShoot);
+  $('btnPbSave').addEventListener('click', pbSave);
+  $('btnPbRetake').addEventListener('click', pbRetake);
+  $('btnPbCamera').addEventListener('click', function(){ PB.mode='camera'; PB.cam='idle'; pbUpdateModeUI(); pbStartCamera(); });
+  $('btnPbGallery').addEventListener('click', function(){ $('pbFile').click(); });
+  $('btnPbAvatarOnly').addEventListener('click', pbAvatarOnly);
+  $('pbFile').addEventListener('change', pbPickFiles);
   $('btnRaceStart').addEventListener('click', startRace);
   $('btnRestart').addEventListener('click', function(){ resetAll(); });
   document.addEventListener('visibilitychange', function(){
-    if(document.hidden){ stopWorldLoop(); }
+    if(document.hidden){ stopWorldLoop(); pbStopOverlay(); }
     else if(current===6) startWorldLoop();
+    else if(current===16) pbStartOverlay();
   });
   window.addEventListener('resize', function(){
     if(current===1) paintAvatarScreen();
     if(current===6) drawWorld();
     if(current===9) raceDraw(race.el||0);
+    if(current===16){ pbDrawOverlay(0); if(!PB.raf) pbStartOverlay(); }
   });
   window.addEventListener('beforeunload', function(){ save(); });
 }
