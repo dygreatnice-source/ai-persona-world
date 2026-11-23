@@ -579,10 +579,10 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:0;backg
       <h1 class="title"><span class="l1">AI</span><span class="l2">PERSONA</span><span class="l3">WORLD</span></h1>
       <p class="sub">또 다른 나를 만들고,<br>가상 세계에 입장하라!</p>
       <div class="nickbox">
-        <div class="label"><span>닉네임</span><span class="cnt"><span id="nickCnt">0</span> / 10</span></div>
-        <input class="input" id="nickInput" type="text" maxlength="10" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="예) 별빛탐험가" aria-label="닉네임">
-        <div class="note"><span class="ico">🕵️</span><span>실명·학번은 쓰지 않아요. <b>닉네임만!</b></span></div>
-        <div id="nickWarn" class="note note--gold" style="display:none"><span class="ico">!</span><span>숫자가 많으면 학번처럼 보여요. 별명으로 바꿔 볼까요?</span></div>
+        <div class="label"><span>학번 + 닉네임</span><span class="cnt"><span id="nickCnt">0</span> / 20</span></div>
+        <input class="input" id="nickInput" type="text" maxlength="20" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="예: 10305 별빛" aria-label="학번과 닉네임">
+        <div class="note"><span class="ico">🕵️</span><span>실명은 쓰지 말고 <b>학번 + 닉네임</b>만 쓰세요. <span style="white-space:nowrap">예: 10305 별빛</span></span></div>
+        <div id="nickWarn" class="note note--gold" style="display:none"><span class="ico">!</span><span id="nickWarnText">학번과 닉네임 사이를 한 칸 띄워 주세요. 예: 10305 별빛</span></div>
       </div>
       <div style="height:16px"></div>
       <button class="btn btn--mint" id="btnStart" aria-disabled="true"><span class="press">PRESS START ▶</span></button>
@@ -2957,11 +2957,21 @@ function updateNickUI(){
   var v=inp.value.trim();
   $('nickCnt').textContent=inp.value.length;
   $('btnStart').setAttribute('aria-disabled', v.length?'false':'true');
-  $('nickWarn').style.display = (/\d{3,}/.test(v))?'flex':'none';
+  var hasDigit=/\d/.test(v), hasWord=/[0-9A-Za-z가-힣]/.test(v.replace(/[0-9\s]/g,''));
+  var warn=$('nickWarn');
+  if(!v || (!hasDigit && v.length<2)){ warn.style.display='none'; }
+  else if(hasDigit&&hasWord&&/\s/.test(v)){ warn.style.display='none'; }
+  else{
+    var msg=!hasDigit ? '학번을 함께 적어 주세요. 예: 10305 별빛'
+          : !hasWord ? '학번 뒤에 닉네임도 써 주세요. 예: 10305 별빛'
+          : '학번과 닉네임 사이를 한 칸 띄워 주세요. 예: 10305 별빛';
+    var t=$('nickWarnText'); if(t) t.textContent=msg;
+    warn.style.display='flex';
+  }
 }
 function startGame(){
-  var v=$('nickInput').value.trim();
-  if(!v){ toast('닉네임을 먼저 적어 주세요'); $('nickInput').focus(); return; }
+  var v=$('nickInput').value.replace(/\s+/g,' ').trim();
+  if(!v){ toast('학번과 닉네임을 먼저 적어 주세요 (예: 10305 별빛)'); $('nickInput').focus(); return; }
   S.nickname=v; S.screen=1; S.maxScreen=Math.max(S.maxScreen||0,1); SFX.enter();
   save(); go(1,true); save();
 }
@@ -2969,7 +2979,7 @@ var STAGE_LABEL=['입장','MISSION 01','아바타 완성','MISSION 02','데이�
 function stageLabel(n){ return STAGE_LABEL[n]||'MISSION 01'; }
 
 function initIntro(){
-  $('nickInput').addEventListener('input', function(){ updateNickUI(); S.nickname=this.value.trim(); save(); });
+  $('nickInput').addEventListener('input', function(){ updateNickUI(); S.nickname=this.value.replace(/\s+/g,' ').trim(); save(); });
   $('nickInput').addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); startGame(); } });
   $('btnStart').addEventListener('click', startGame);
   $('btnResume').addEventListener('click', resumeGame);
@@ -3012,7 +3022,7 @@ function jumpTo(n){
     SFX.whoosh(); go(5);
     toast('2교시 시작 지점(MISSION 03)으로 왔어요');
   }else{
-    if(!S.nickname){ toast('닉네임을 먼저 입력해 주세요'); $('nickInput').focus(); return; }
+    if(!S.nickname){ toast('학번과 닉네임을 먼저 입력해 주세요 (예: 10305 별빛)'); $('nickInput').focus(); return; }
     go(1);
   }
 }
@@ -4627,7 +4637,9 @@ function b36(n,len){
 }
 function raceCode(){
   var ax=S.axesAdj||S.axes;
-  var nm=String(S.nickname||'').replace(/[^0-9A-Za-z가-힣]/g,'').slice(0,4)||'나';
+  var nmRaw=String(S.nickname||'').trim();
+  /* '10305 별빛'처럼 학번이 앞에 오면 코드 이름은 닉네임 부분만 4자까지 (학번만 적었으면 학번 사용) */
+  var nm=(nmRaw.replace(/^[0-9]+/,'').replace(/[^0-9A-Za-z가-힣]/g,'')||nmRaw.replace(/[^0-9A-Za-z가-힣]/g,'')).slice(0,4)||'나';
   var digits=codePart(ax.plan)+codePart(ax.brave)+codePart(ax.lead)+codePart(ax.empathy);
   var c=normCfg(S.avatar);
   var p1=((c.hair*8+c.hairColor)*8+c.face)*6+c.skin;
