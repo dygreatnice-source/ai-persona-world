@@ -282,6 +282,27 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:0;backg
 .racelive{position:absolute;left:10px;top:8px;font-size:11px;font-weight:700;color:var(--ink);background:rgba(10,9,34,.8);border:1.5px solid var(--line2);padding:4px 7px}
 .racelive b{color:var(--gold);font-family:'Press Start 2P',monospace;font-size:10px}
 .raceinfo{font-size:12.5px;color:var(--lav);font-weight:700;margin:10px 0 0;min-height:36px;line-height:1.45}
+/* race upgrade : 성향 스킬 · 실시간 중계 · 스퍼트 */
+.raceskill{display:flex;gap:10px;align-items:center;background:linear-gradient(135deg,#2A2566,#1B1A4C);border:2px solid var(--gold);box-shadow:0 4px 0 var(--ink-dark);padding:9px 10px;margin:0 0 10px}
+.raceskill .ic{flex:0 0 auto;width:38px;height:38px;display:flex;align-items:center;justify-content:center;font-size:21px;background:rgba(255,209,92,.16);border:2px solid var(--gold)}
+.raceskill .tx{flex:1;min-width:0}
+.raceskill .lb{font-family:'Press Start 2P',monospace;font-size:7.5px;color:var(--gold);letter-spacing:.04em}
+.raceskill .nm{font-size:14px;font-weight:900;line-height:1.2;margin:3px 0 2px}
+.raceskill .ds{font-size:10.5px;color:#CFC9FF;line-height:1.3;font-weight:700;letter-spacing:-0.01em}
+.raceskill .tag{flex:0 0 auto;text-align:center;font-size:9.5px;font-weight:900;color:var(--mint);background:rgba(92,230,176,.12);border:1.5px solid var(--mint);padding:4px 5px;line-height:1.25}
+.raceticker{display:flex;align-items:center;gap:7px;margin-top:9px;padding:8px 9px;min-height:38px;background:rgba(10,9,34,.9);border:2px solid var(--line2);font-size:12px;font-weight:700;color:#EDE9FF;line-height:1.3}
+.raceticker .live{flex:0 0 auto;font-family:'Press Start 2P',monospace;font-size:7.5px;background:var(--coral);color:var(--ink-dark);padding:3px 4px;opacity:.45}
+.raceticker.on .live{opacity:1;animation:blip 1s steps(1) infinite}
+@keyframes blip{50%{opacity:.25}}
+.raceticker .msg{flex:1;min-width:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.sprintbtn{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;margin-top:10px;padding:0 10px;min-height:60px;font-size:19px;font-weight:900;letter-spacing:-0.02em;background:linear-gradient(180deg,#FFE9A8,#FFD15C);color:var(--ink-dark);border:2px solid var(--ink-dark);box-shadow:0 6px 0 var(--ink-dark);cursor:pointer;transition:transform .06s,filter .15s}
+.sprintbtn:active{transform:translateY(4px);box-shadow:0 2px 0 var(--ink-dark)}
+.sprintbtn .left{font-family:'Press Start 2P',monospace;font-size:10px;background:var(--ink-dark);color:var(--gold);padding:5px 7px}
+.sprintbtn.off{filter:grayscale(.85) brightness(.62);cursor:not-allowed;transform:none;box-shadow:0 4px 0 var(--ink-dark)}
+.sprintbtn.hot{animation:sprintpulse .42s ease-out}
+.sprintbtn.ready:not(.off){animation:sprintglow 1s ease-in-out infinite}
+@keyframes sprintpulse{0%{transform:scale(.96) translateY(3px)}60%{transform:scale(1.03)}100%{transform:scale(1)}}
+@keyframes sprintglow{0%,100%{box-shadow:0 6px 0 var(--ink-dark),0 0 0 0 rgba(255,209,92,.55)}50%{box-shadow:0 6px 0 var(--ink-dark),0 0 0 7px rgba(255,209,92,0)}}
 .resulthead{display:flex;align-items:center;gap:10px;margin-bottom:8px}
 .resulthead .r1{font-family:'Press Start 2P',monospace;font-size:22px;color:var(--gold)}
 .resulthead .r2{font-size:13px;font-weight:700;color:var(--dim)}
@@ -759,15 +780,19 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:0;backg
     <div class="hud"><span class="chip chip--gold">MINI GAME 01</span><span class="nick" id="hudNick9"></span></div>
     <h2 class="h2">페르소나 <span class="mint">달리기 경주</span></h2>
     <p class="lead">같은 성향이라도 <b>전략</b>에 따라 결과가 달라져요.</p>
+    <div class="raceskill" id="raceSkill"></div>
     <div class="strats" id="stratRow"></div>
-    <div class="racewrap">
+    <div class="raceticker" id="raceTicker"><span class="live">LIVE</span><span class="msg" id="raceMsg">출발을 누르면 실시간 중계가 시작돼요.</span></div>
+    <div class="racewrap" style="margin-top:9px">
       <canvas id="raceCanvas" width="390" height="250"></canvas>
       <div class="racelive" id="raceLive">READY</div>
     </div>
+    <button class="sprintbtn off" id="btnSprint" type="button" disabled><span>⚡ 스퍼트!</span><span class="left" id="sprintLeft">2회</span></button>
+    <div style="height:10px"></div>
+    <button class="btn btn--mint" id="btnRaceStart">출발 ▶</button>
     <p class="raceinfo" id="raceInfo">내 페르소나가 고른 전략으로 달려요. 출발을 눌러 주세요.</p>
     <div class="panel panel--tight" id="raceWhy" style="margin-top:10px"></div>
     <div style="height:12px"></div>
-    <button class="btn btn--mint" id="btnRaceStart">출발 ▶</button>
     <div id="raceResult" style="display:none;margin-top:12px"></div>
   </section>
 
@@ -816,6 +841,18 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:0;backg
     <p class="mini" style="text-align:center">저장이 안 되면 카드를 길게 눌러 사진으로 저장해요.</p>
     <div class="panel" style="margin-top:14px">
       <p style="font-size:12.5px;font-weight:700;color:var(--lav);line-height:1.5;margin:0">마지막 질문 · <b style="color:var(--gold)">AI는 나를 완벽하게 대신할 수 있을까?</b></p>
+    </div>
+    <div class="panel" style="margin-top:14px" id="promptPanel">
+      <div style="font-size:13.5px;font-weight:900;line-height:1.35;color:var(--mint)">🎁 수업 후 혼자 쓰는 AI 자기성찰 프롬프트</div>
+      <p class="mini" style="margin:5px 0 0">집에서 ChatGPT·Gemini 같은 AI에게 아래 프롬프트를 붙여 넣어 보세요. 오늘 만든 <b>내 성향</b>과 내가 적은 기록으로 대화를 이어 가요.</p>
+      <button class="btn btn--mint" id="btnPromptCopy" style="margin-top:9px;flex-direction:column;gap:2px;min-height:62px;padding:9px 12px">
+        <span>📋 내 성향으로 AI랑 대화하기</span>
+        <span style="font-size:10.5px;font-weight:700;opacity:.8;letter-spacing:0">프롬프트 복사하기</span>
+      </button>
+      <details id="promptDetails" style="margin-top:9px">
+        <summary class="mini" style="cursor:pointer;color:var(--lav);font-weight:700;line-height:1.4">복사가 안 되면 여기서 직접 골라 복사해요</summary>
+        <textarea class="input" id="promptBox" readonly rows="12" aria-label="자기성찰 프롬프트" style="margin-top:7px;font-size:11px;line-height:1.55;min-height:190px;padding:9px"></textarea>
+      </details>
     </div>
     <div style="height:16px"></div>
   </section>
@@ -2673,6 +2710,20 @@ function energyLines(){
   };
 }
 function sideOf(v){ return v<=42?'L':(v>=58?'R':'M'); }
+/* 축 값 → 지금 강한 쪽 이름 + 강도(%) · 왼쪽 축은 값이 작을수록 강해요 */
+function axisStrength(axes,key){
+  var a=AXES.filter(function(x){ return x.key===key; })[0];
+  var v=axes[key], side=sideOf(v);
+  if(side==='L') return {side:'L', name:a.leftName, left:a.left, right:a.right, pct:100-v};
+  if(side==='R') return {side:'R', name:a.rightName, left:a.left, right:a.right, pct:v};
+  return {side:'M', name:'균형', left:a.left, right:a.right, pct:50};
+}
+function axisStrengthText(axes,key){ var s=axisStrength(axes,key); return s.name+' '+s.pct+'%'; }
+/* 도전/신중 → 새로운 제안에 대한 행동 (한 곳에서만 정해 모든 화면이 같은 답을 씀) */
+function braveAction(axes){
+  var s=axisStrength(axes,'brave');
+  return s.side==='L'?'참여한다':(s.side==='R'?'거절한다':'고민 후 결정한다');
+}
 function buildRules(axes){
   var out={};
   AXES.forEach(function(a){
@@ -3179,16 +3230,17 @@ var DIR_TEXT={go:'간다', no:'안 간다', maybe:'상황에 따라'};
 var ACT_DIR={'참여한다':'go','고민 후 결정한다':'maybe','거절한다':'no'};
 
 function predBase(axes){
-  var brave=(axes.brave-50)/50, plan=(axes.plan-50)/50;   /* brave 낮음=도전, 높음=신중 */
-  var score = -brave*0.75 + plan*0.25;
-  var dir = score>0.12?'go':(score<-0.12?'no':'maybe');
-  var conf = clamp(Math.round(50+Math.abs(score)*42),52,90);
+  /* brave 축: 0 = 도전, 100 = 신중. 예측 방향은 RULE EDITOR의 기존 규칙과 같은 함수에서 나와요. */
+  var act=braveAction(axes);
+  var dir=ACT_DIR[act]||'maybe';
+  var edge=Math.abs(axes.brave-50);
+  var conf=clamp(Math.round(54+edge*0.42+Math.abs(axes.plan-50)*0.10),54,90);
   var r=[];
-  if(brave<=-0.16) r.push('새로운 건 일단 해 보는 편이고');
-  else if(brave>=0.16) r.push('충분히 살펴보고 움직이는 편이고');
+  if(axes.brave<=42) r.push('새로운 건 일단 해 보는 편이고');
+  else if(axes.brave>=58) r.push('충분히 살펴보고 움직이는 편이고');
   else r.push('새로운 것도 적당히 좋아하고');
-  if(plan<=-0.16) r.push('미리 계획을 세우는 편이니까');
-  else if(plan>=0.16) r.push('그때그때 정하는 편이니까');
+  if(axes.plan<=42) r.push('미리 계획을 세우는 편이니까');
+  else if(axes.plan>=58) r.push('그때그때 정하는 편이니까');
   else r.push('계획과 즉흥을 반반 섞는 편이니까');
   return {dir:dir, conf:conf, reason:r.join(' ')};
 }
@@ -3238,7 +3290,7 @@ function renderBias(){
         : '<button class="btn btn--ghost btn--sm" type="button" data-bias="'+i+'" style="margin-top:7px;min-height:38px;font-size:12px">그건 아니야!</button>')+
       '</div>';
   });
-  html+='<div class="note note--mint" style="margin-top:2px"><span class="ico">🧠</span><span>AI는 <b>데이터에서 본 것만</b> 알아요. 사람은 데이터보다 훨씬 많아요.</span></div>';
+  html+='<div class="note note--mint" style="margin-top:2px"><span class="ico">🧠</span><span>AI는 <b>데이터에서 본 것만</b> 알아요. 하지만 사람은 데이터보다 훨씬 복잡해요.</span></div>';
   box.innerHTML=html;
   box.querySelectorAll('[data-bias]').forEach(function(b){
     b.addEventListener('click', function(){
@@ -3264,26 +3316,12 @@ function renderMission3(){
     b.classList.toggle('btn--ghost', true);
     b.classList.toggle('btn--lav', b.dataset.act===act);
   });
-  var v=$('m3Verdict'), tr=$('m3Trace');
-  if(act){
-    var mismatch = act!==base.dir;
-    v.style.display='block';
-    v.className='verdict'+(mismatch?' bug':'');
-    v.innerHTML = mismatch
-      ? '<b>예측 불일치 → 버그 발견!</b><br>AI는 <b>'+(DIR_TEXT[base.dir])+'</b>고 예측했지만, 실제 나는 <b>'+DIR_TEXT[act]+'</b>예요.'
-      : '<b>예측 일치!</b> 그래도 예외 상황이 있을 수 있어요. 예외 규칙을 한 줄 더해 볼까요?';
-    tr.style.display='block';
-    tr.innerHTML = '<div class="trow"><span class="tk">1</span><span class="tv">AI는 무엇을 예측했나? → <b>'+DIR_TEXT[base.dir]+'</b></span></div>'+
-      '<div class="trow"><span class="tk">2</span><span class="tv">실제 나는? → <b>'+DIR_TEXT[act]+'</b></span></div>'+
-      '<div class="trow"><span class="tk">3</span><span class="tv">AI가 놓친 조건은? → 아래 예외 규칙에 적어 보세요</span></div>';
-  }else{
-    v.style.display='none'; tr.style.display='none';
-  }
+  renderM3Verdict(base);
 
   /* 기존 규칙 */
-  var side = sideOf(ax.brave);
-  var baseAction = side==='L'?'참여한다':(side==='R'?'거절한다':'고민 후 결정한다');
-  $('m3BaseRule').innerHTML='<span class="kw">RULE</span>새로운 제안 → <b>'+baseAction+'</b> <span style="color:var(--dim);font-weight:500">(도전 '+ax.brave+'%로 만든 규칙)</span>';
+  var bs=axisStrength(ax,'brave');
+  var baseAction=braveAction(ax);
+  $('m3BaseRule').innerHTML='<span class="kw">RULE</span>새로운 제안 → <b>'+baseAction+'</b> <span style="color:var(--dim);font-weight:500">('+esc(bs.name)+' '+bs.pct+'%로 만든 규칙)</span>';
 
   /* 예외 규칙 빌더 */
   var build=$('m3ExBuild');
@@ -3375,9 +3413,11 @@ function renderMission3(){
     inp.addEventListener('input', function(){
       S.axesAdj[a.key]=+inp.value; S.adjTouched=true;
       wrap.querySelector('b').textContent=inp.value;
-      if(a.key==='brave'||a.key==='plan'){ S.m3.basePred=predBase(S.axesAdj); }
+      S.m3.basePred=predBase(S.axesAdj);
+      refreshM3Live();
       save();
     });
+    inp.addEventListener('change', function(){ renderMission3(); });
     wrap.appendChild(inp);
     sl.appendChild(wrap);
   });
@@ -3385,6 +3425,36 @@ function renderMission3(){
   /* RUN 결과 */
   if(S.m3.ran) renderM3Test();
   else $('m3Test').style.display='none';
+}
+function renderM3Verdict(base){
+  var act=S.m3.actual;
+  var v=$('m3Verdict'), tr=$('m3Trace');
+  if(!v||!tr) return;
+  if(act){
+    var mismatch = act!==base.dir;
+    v.style.display='block';
+    v.className='verdict'+(mismatch?' bug':'');
+    v.innerHTML = mismatch
+      ? '<b>예측 불일치 → 버그 발견!</b><br>AI는 <b>'+(DIR_TEXT[base.dir])+'</b>고 예측했지만, 실제 나는 <b>'+DIR_TEXT[act]+'</b>예요.'
+      : '<b>예측 일치!</b> 그래도 예외 상황이 있을 수 있어요. 예외 규칙을 한 줄 더해 볼까요?';
+    tr.style.display='block';
+    tr.innerHTML = '<div class="trow"><span class="tk">1</span><span class="tv">AI는 무엇을 예측했나? → <b>'+DIR_TEXT[base.dir]+'</b></span></div>'+
+      '<div class="trow"><span class="tk">2</span><span class="tv">실제 나는? → <b>'+DIR_TEXT[act]+'</b></span></div>'+
+      '<div class="trow"><span class="tk">3</span><span class="tv">AI가 놓친 조건은? → 아래 예외 규칙에 적어 보세요</span></div>';
+  }else{
+    v.style.display='none'; tr.style.display='none';
+  }
+}
+/* 슬라이더를 끄는 동안 규칙 문구·예측·테스트 결과를 같이 맞춰 주는 함수 */
+function refreshM3Live(){
+  var ax=S.axesAdj||S.axes;
+  var base=S.m3.basePred||predBase(ax); S.m3.basePred=base;
+  $('m3Pred').textContent=base.reason+' '+PRED_TEXT[base.dir];
+  $('m3Reason').textContent='확신도 '+base.conf+'% · 내 선택 데이터로 계산한 예측이에요.';
+  var bs=axisStrength(ax,'brave');
+  $('m3BaseRule').innerHTML='<span class="kw">RULE</span>새로운 제안 → <b>'+braveAction(ax)+'</b> <span style="color:var(--dim);font-weight:500">('+esc(bs.name)+' '+bs.pct+'%로 만든 규칙)</span>';
+  renderM3Verdict(base);
+  if(S.m3.ran) renderM3Test();
 }
 function renderM3Test(){
   var rows=testRows();
@@ -4298,10 +4368,9 @@ function showReaction(){
     if(shown>=2) return;
     var ax=AXES.filter(function(a){ return a.key===c.k; })[0];
     var rl=rules[c.k];
-    var val=(S.axesAdj||S.axes)[c.k];
-    var dirTxt=c.val<0?ax.leftName:ax.rightName;
+    var st=axisStrength(S.axesAdj||S.axes,c.k);
     var d=document.createElement('div'); d.className='arow';
-    d.innerHTML='<span class="k">RULE</span><span class="t"><b style="color:var(--gold)">'+ax.left+' '+val+'%</b> → '+dirTxt+'<br>'+esc(rl.ifText)+' <span style="color:var(--mint)">→</span> '+esc(rl.thenText)+'</span>';
+    d.innerHTML='<span class="k">RULE</span><span class="t"><b style="color:var(--gold)">'+esc(st.name)+' '+st.pct+'%</b><br>'+esc(rl.ifText)+' <span style="color:var(--mint)">→</span> '+esc(rl.thenText)+'</span>';
     ap.appendChild(d); shown++;
   });
   if(!r.contrib.length){
@@ -4320,17 +4389,154 @@ function showReaction(){
 /* =========================================================
    14. RACE
    ========================================================= */
-var race={raf:null, running:false, el:0, last:0, strat:'steady', result:null, speed:1};
+var race={raf:null, running:false, el:0, last:0, strat:'steady',
+  skill:null, skillKey:'', evs:[], runners:[], sprint:2, sprintT:0, sprintPerfect:false,
+  msg:'', msgUntil:0, pop:null, finished:false};
+
+/* 성향별 고유 스킬 : 가장 두드러진 축의 방향으로 자동 장착 */
+var RACE_SKILLS={
+  planL:{icon:'📐', name:'페이스 조절', desc:'오르막·맞바람에서도 속도가 줄지 않아요'},
+  planR:{icon:'🎲', name:'즉흥 질주', desc:'⚡ 가속 발판을 만나면 두 배로 붙어요'},
+  braveL:{icon:'🔥', name:'폭발 스퍼트', desc:'스퍼트가 더 길고 더 강하게 터져요'},
+  braveR:{icon:'🧊', name:'노면 파악', desc:'맞바람 감속을 미리 살펴 줄여요'},
+  leadL:{icon:'🚀', name:'선두 질주', desc:'1위로 달릴 때 조금 더 빨라져요'},
+  leadR:{icon:'🤝', name:'추격 가속', desc:'2·3위일 때 뒤에서 힘을 내요'},
+  empathyL:{icon:'💨', name:'기류 타기', desc:'바람 구간에서 오히려 속도가 붙어요'},
+  empathyR:{icon:'🧭', name:'최적 경로', desc:'체크포인트마다 잠깐 가속해요'}
+};
+var TRACK_TYPES={
+  boost:{label:'가속 발판', mult:1.95, w:0.055, color:'#FFD15C'},
+  wind:{label:'맞바람', mult:0.56, w:0.095, color:'#8FD3FF'},
+  uphill:{label:'오르막', mult:0.72, w:0.09, color:'#5CE6B0'},
+  down:{label:'내리막', mult:1.22, w:0.07, color:'#FF9A4D'}
+};
+function raceSkill(axes){
+  var best='plan', bd=-1;
+  AXES.forEach(function(a){
+    var d=Math.abs(axes[a.key]-50);
+    if(d>bd+0.0001){ bd=d; best=a.key; }
+  });
+  var side=sideOf(axes[best])==='R'?'R':'L';
+  var key=best+side, sk=RACE_SKILLS[key], ast=axisStrength(axes,best);
+  return {key:key, icon:sk.icon, name:sk.name, desc:sk.desc, axisName:ast.name, axisPct:ast.pct};
+}
+function makeTrack(){
+  var total=4+Math.floor(Math.random()*2);            /* 4~5개 구간 */
+  var must=['boost','wind','uphill'];                 /* 매 판 발판·바람·오르막은 반드시 */
+  var types=must.slice();
+  var pool=['down','boost','wind','uphill','down'];
+  while(types.length<total){
+    var t=pool[Math.floor(Math.random()*pool.length)];
+    if(types.filter(function(x){ return x===t; }).length>=2) continue;
+    types.push(t);
+  }
+  for(var i=types.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var tmp=types[i]; types[i]=types[j]; types[j]=tmp; }
+  var lo=0.13, hi=0.80, span=(hi-lo)/types.length;
+  return types.map(function(t,i){
+    return {type:t, p:lo+i*span+Math.random()*span*0.45, w:TRACK_TYPES[t].w, said:false};
+  });
+}
+function makeRunners(strat){
+  var meSeg=STRATS[strat].seg;
+  return [
+    {key:'r1', name:RIVALS[0].name, lane:0, me:false,
+     cfg:RIVALS[0].cfg||{hair:1,hairColor:1,face:0,skin:2,outfit:5,acc:0},
+     seg:RIVALS[0].seg.slice(), prog:0, rank:1, luck:0.985+Math.random()*0.05},
+    {key:'me', name:(S.nickname||'ME'), lane:1, me:true,
+     cfg:S.avatar, seg:meSeg.slice(), prog:0, rank:2, luck:1, skillKey:race.skillKey, cpBonus:0},
+    {key:'r2', name:RIVALS[1].name, lane:2, me:false,
+     cfg:RIVALS[1].cfg||{hair:3,hairColor:5,face:4,skin:3,outfit:2,acc:1},
+     seg:RIVALS[1].seg.slice(), prog:0, rank:3, luck:0.965+Math.random()*0.05}
+  ];
+}
 function personaStrat(ax){
-  if(ax.brave>=58) return 'power';
-  if(ax.plan<=42) return 'steady';
-  if(ax.brave<=42) return 'kick';
+  /* brave: 0=도전, 100=신중. 도전형은 몰아치는 전력 질주, 신중형은 아끼다 뒤집는 막판 스퍼트 */
+  if(ax.brave<=42) return 'power';
+  if(ax.brave>=58) return 'kick';
   return 'steady';
+}
+function renderRaceSkill(){
+  var box=$('raceSkill'); if(!box||!race.skill) return;
+  box.innerHTML='<div class="ic">'+race.skill.icon+'</div>'+
+    '<div class="tx"><div class="lb">MY SKILL · 자동 장착</div>'+
+    '<div class="nm">'+esc(race.skill.name)+'</div>'+
+    '<div class="ds">'+esc(race.skill.desc)+'</div></div>'+
+    '<div class="tag">'+esc(race.skill.axisName)+'<br>'+race.skill.axisPct+'%</div>';
+}
+function setTicker(text){
+  var el=$('raceMsg'); if(el) el.textContent=text;
+}
+function raceSay(text, prio){
+  var now=performance.now();
+  if(prio>=3 || now>=race.msgUntil){ race.msg=text; race.msgUntil=now+(prio>=3?1500:1050); }
+}
+function updateSprintUI(){
+  var b=$('btnSprint'); if(!b) return;
+  var can=race.running && race.sprint>0;
+  b.disabled=!can;
+  b.classList.toggle('off', !can);
+  if(!race.running) b.classList.remove('ready');
+  var left=$('sprintLeft'); if(left) left.textContent=race.sprint+'회';
+}
+function resetSprint(n){
+  race.sprint=n; race.sprintT=0; race.sprintPerfect=false;
+  var b=$('btnSprint'); if(b) b.classList.remove('hot','ready');
+  updateSprintUI();
+}
+function sprintHit(){
+  if(!race.running || race.sprint<=0) return;
+  var me=race.runners[1]; if(!me) return;
+  var inZone=false;
+  race.evs.forEach(function(e){ if(me.prog>=e.p-0.03 && me.prog<e.p+e.w+0.03) inZone=true; });
+  race.sprint--;
+  race.sprintT=(race.skillKey==='braveL')?1.0:0.8;
+  race.sprintPerfect=inZone;
+  SFX.good(); burst(14);
+  raceSay(inZone?('완벽한 타이밍! 🔥 '+me.name+' 스퍼트!'):('⚡ 스퍼트! '+me.name+'가 치고 나갑니다'),3);
+  updateSprintUI();
+  var b=$('btnSprint'); if(b){ b.classList.remove('hot'); void b.offsetWidth; b.classList.add('hot'); }
+}
+function inEventZone(p){
+  var hit=null;
+  race.evs.forEach(function(e){ if(p>=e.p && p<e.p+e.w) hit=e; });
+  return hit;
+}
+function laneSpeed(r){
+  var p=r.prog;
+  var segIdx=p<1/3?0:(p<2/3?1:2);
+  var v=(1/3)/r.seg[segIdx];
+  var m=1;
+  for(var i=0;i<race.evs.length;i++){
+    var e=race.evs[i];
+    if(p>=e.p && p<e.p+e.w){
+      var t=TRACK_TYPES[e.type], mm=t.mult;
+      if(r.me){
+        if(r.skillKey==='planL' && (e.type==='uphill'||e.type==='wind')) mm=1;
+        else if(r.skillKey==='braveR' && e.type==='wind') mm=Math.max(t.mult,0.88);
+        else if(r.skillKey==='planR' && e.type==='boost') mm=2.9;
+        else if(r.skillKey==='empathyL' && e.type==='wind') mm=1.3;
+      }else if(r.key==='r1' && e.type==='boost'){ mm=Math.max(t.mult,2.25); }
+      m*=mm;
+    }
+  }
+  if(r.me){
+    if(r.skillKey==='leadL' && r.rank===1) m*=1.12;
+    if(r.skillKey==='leadR' && r.rank>1) m*=1.15;
+    if(r.skillKey==='empathyR' && r.cpBonus>0) m*=1.2;
+    if(race.sprintT>0) m*=(r.skillKey==='braveL'?2.05:1.6)*(race.sprintPerfect?1.12:1);
+  }
+  return v*m;
+}
+function updateRanks(){
+  var order=race.runners.slice().sort(function(a,b){ return b.prog-a.prog; });
+  order.forEach(function(r,i){ r.rank=i+1; });
 }
 function renderRaceScreen(){
   var ax=S.axesAdj||S.axes;
   if(!S.games.race.strat) S.games.race.strat=personaStrat(ax);
   race.strat=S.games.race.strat;
+  race.skill=raceSkill(ax); race.skillKey=race.skill.key;
+  renderRaceSkill();
   var row=$('stratRow'); row.innerHTML='';
   ['power','steady','kick'].forEach(function(k){
     var st=STRATS[k];
@@ -4345,6 +4551,7 @@ function renderRaceScreen(){
     b.addEventListener('click', function(){
       if(race.running) return;
       S.games.race.strat=k; race.strat=k; save();
+      if(race.runners.length) race.runners[1].seg=STRATS[k].seg.slice();
       renderRaceScreen();
     });
     row.appendChild(b);
@@ -4354,20 +4561,33 @@ function renderRaceScreen(){
   var why=$('raceWhy');
   if(why){
     var pk=personaStrat(ax);
-    var reason = pk==='power' ? ('도전 '+ax.brave+'% → 일단 몰아치는 쪽')
-      : (pk==='kick' ? ('신중 '+ax.brave+'% → 초반은 아끼고 막판에')
-      : ('계획 '+ax.plan+'% → 끝까지 같은 속도'));
+    var bst=axisStrength(ax,'brave'), pst=axisStrength(ax,'plan');
+    var reason = pk==='power' ? (bst.name+' '+bst.pct+'% → 일단 몰아치는 쪽')
+      : (pk==='kick' ? (bst.name+' '+bst.pct+'% → 초반은 아끼고 막판에')
+      : (pst.name+' '+pst.pct+'% → 끝까지 같은 속도'));
     why.innerHTML='<div style="font-size:10.5px;color:var(--dim);font-weight:700;margin-bottom:5px">왜 이 전략을 골랐나요?</div>'+
       '<div style="font-size:12.5px;font-weight:700;line-height:1.45;color:#DCD7FF">'+esc(reason)+' → <span style="color:var(--gold)">'+STRATS[pk].name+'</span></div>'+
-      '<div class="mini">트랙 이벤트(오르막 · 바람)에 따라 유리한 전략이 달라져요.</div>';
+      '<div class="mini">트랙 이벤트(오르막 · 바람 · 발판)에 따라 유리한 전략이 달라져요.</div>';
   }
   $('btnRaceStart').style.display='flex';
   $('btnRaceStart').textContent = S.games.race.done?'다시 달리기 ▶':'출발 ▶';
+  if(!race.evs.length) race.evs=makeTrack();
+  if(!race.runners.length) race.runners=makeRunners(race.strat);
+  resetSprint(2);
   if(S.games.race.done && S.games.race.rank){
+    var ahead=(S.games.race.rank||1)-1;
+    race.runners.forEach(function(r){ r.prog = r.me?1:(ahead-->0?1:0.96); });
+    updateRanks();
     showRaceResult(true);
+    raceDraw();
   }else{
     $('raceResult').style.display='none';
-    raceDraw(0);
+    race.evs.forEach(function(e){ e.said=false; });
+    race.runners.forEach(function(r){ r.prog=0; r.cpBonus=0; });
+    updateRanks();
+    race.el=0;
+    setTicker('출발을 누르면 실시간 중계가 시작돼요.');
+    raceDraw();
   }
 }
 function distAt(el, seg){
@@ -4379,7 +4599,7 @@ function distAt(el, seg){
   }
   return 1;
 }
-function raceDraw(el){
+function raceDraw(){
   var c=$('raceCanvas'); if(!c) return;
   var cssW=c.clientWidth||390;
   var dpr=Math.min(window.devicePixelRatio||1,2.5);
@@ -4422,48 +4642,51 @@ function raceDraw(el){
   ctx.fillStyle='#FFD15C'; ctx.fillText('START',8,100);
   ctx.fillStyle='#FF6B8B'; ctx.fillText('FINISH',322,100);
 
-  /* 체크포인트 */
-  [{p:1/3,label:'오르막',icon:1},{p:2/3,label:'바람',icon:2},{p:1,label:'결승',icon:3}].forEach(function(cp){
-    if(cp.p>=1) return;
-    var x=34+cp.p*310;
-    ctx.strokeStyle='rgba(180,167,255,0.22)'; ctx.lineWidth=1;
-    ctx.beginPath(); ctx.moveTo(x,104); ctx.lineTo(x,250); ctx.stroke();
-    ctx.fillStyle='rgba(10,9,34,.78)'; ctx.fillRect(x-20,84,40,16);
-    if(cp.icon===1){
-      ctx.fillStyle='#5CE6B0';
-      ctx.fillRect(x-16,92,6,3); ctx.fillRect(x-14,90,6,2); ctx.fillRect(x-12,88,5,2);
-    }else{
-      ctx.fillStyle='#B4A7FF';
-      ctx.fillRect(x-16,89,10,2); ctx.fillRect(x-15,92,8,2); ctx.fillRect(x-13,95,6,2);
-    }
-    ctx.fillStyle='rgba(244,242,255,.78)'; ctx.font='700 8px "Noto Sans KR", sans-serif';
-    ctx.fillText(cp.label, x-8, 94);
+  /* 이번 판 트랙 이벤트 (랜덤 배치) */
+  race.evs.forEach(function(e,ei){
+    var t=TRACK_TYPES[e.type];
+    var rgb=hexToRgb(t.color);
+    var x1=34+e.p*310, x2=34+Math.min(1,e.p+e.w)*310;
+    ctx.fillStyle='rgba('+rgb[0]+','+rgb[1]+','+rgb[2]+',0.15)';
+    ctx.fillRect(x1,104,Math.max(6,x2-x1),146);
+    ctx.strokeStyle='rgba('+rgb[0]+','+rgb[1]+','+rgb[2]+',0.55)';
+    ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(x1,104); ctx.lineTo(x1,250); ctx.moveTo(x2,104); ctx.lineTo(x2,250); ctx.stroke();
+    ctx.font='700 7.5px "Noto Sans KR", sans-serif';
+    var lw=Math.min(58,Math.round(ctx.measureText(t.label).width)+10);
+    var lx=clamp((x1+x2)/2-lw/2, 30, 388-lw);
+    var ly=(ei%2===0)?84:68;   /* 옆 칸 라벨과 겹치지 않게 두 줄로 번갈아 */
+    ctx.fillStyle='rgba(10,9,34,.86)'; ctx.fillRect(lx,ly,lw,13);
+    ctx.strokeStyle=t.color; ctx.lineWidth=1; ctx.strokeRect(lx,ly,lw,13);
+    ctx.fillStyle=t.color; ctx.textAlign='center'; ctx.fillText(t.label, lx+lw/2, ly+9.5);
+    ctx.textAlign='left';
   });
 
   /* 주자 */
   var laneY=[136,182,228];
-  var rows=[
-    {name:RIVALS[0].name, seg:RIVALS[0].seg, lane:0, cfg:RIVALS[0].cfg||{hair:1,hairColor:1,face:0,skin:2,outfit:5,acc:0}},
-    {name:(S.nickname||'ME'), seg:STRATS[race.strat].seg, lane:1, cfg:S.avatar, me:true},
-    {name:RIVALS[1].name, seg:RIVALS[1].seg, lane:2, cfg:RIVALS[1].cfg||{hair:3,hairColor:5,face:4,skin:3,outfit:2,acc:1}}
-  ];
-  rows.forEach(function(r){
-    var p=distAt(el,r.seg);
-    var x=34+p*310;
-    var y=laneY[r.lane];
+  race.runners.forEach(function(r){
+    if(r.prog<=0 && r.done) return;
+    var p=clamp(r.prog,0,1);
+    var x=34+p*302;
+    var y=laneY[r.lane]||182;
     var s=1.05;
-    var run=(el>0&&p<1)?(el*7+r.lane):null;
-    var bob=(run!==null)?Math.abs(Math.sin(el*7+r.lane))*1.4:0;
+    var run=(r.prog>0&&p<1)?(race.el*7+r.lane):null;
+    var bob=(run!==null)?Math.abs(Math.sin(race.el*7+r.lane))*1.4:0;
     ctx.fillStyle='rgba(0,0,0,0.3)';
     ctx.fillRect(x-9,y-1,20,3);
     if(run!==null){
       ctx.fillStyle='rgba(255,255,255,0.28)';
       ctx.fillRect(x-16,y-14,9,1); ctx.fillRect(x-13,y-9,7,1); ctx.fillRect(x-18,y-19,6,1);
     }
+    if(r.me && race.sprintT>0){
+      ctx.fillStyle='rgba(255,209,92,0.85)';
+      for(var q=0;q<4;q++){ var off=(q*4+((race.el*40)%9)); ctx.fillRect(x-12-off,y-10+q*4,6,2); }
+    }
     drawSprite(ctx,r.cfg,s,x,y-bob,run);
     if(r.me){
       ctx.fillStyle='#FFD15C'; ctx.font='700 9px "Noto Sans KR", sans-serif';
       ctx.fillText(r.name,x-11,y+4);
+      if(race.sprintT>0){ ctx.font='900 10px "Noto Sans KR", sans-serif'; ctx.fillText('SPURT',x-14,y-24); }
     }else{
       ctx.fillStyle='rgba(244,242,255,0.55)'; ctx.font='700 9px "Noto Sans KR", sans-serif';
       ctx.fillText(r.name,x-9,y+4);
@@ -4474,88 +4697,141 @@ function raceDraw(el){
   if(race.pop && (performance.now()-race.pop.t)<1100){
     var a=1-(performance.now()-race.pop.t)/1100;
     ctx.globalAlpha=Math.max(0,a);
-    ctx.fillStyle='#FFD15C'; ctx.fillRect(96,14,198,30);
-    ctx.fillStyle='#0A0922'; ctx.font='900 14px "Noto Sans KR", sans-serif';
+    ctx.fillStyle='#FFD15C'; ctx.fillRect(74,14,242,30);
+    ctx.fillStyle='#0A0922'; ctx.font='900 13px "Noto Sans KR", sans-serif';
     ctx.textAlign='center'; ctx.fillText(race.pop.text,195,34); ctx.textAlign='left';
     ctx.globalAlpha=1;
   }
-  return {el:el};
+  return {el:race.el};
 }
-function raceRank(el){
-  var st=STRATS[race.strat];
-  var mine=distAt(el,st.seg);
-  var others=[distAt(el,RIVALS[0].seg),distAt(el,RIVALS[1].seg)];
-  var rank=1;
-  others.forEach(function(o){ if(o>mine+0.0001) rank++; });
-  return {rank:rank, p:mine};
+function raceRank(){
+  updateRanks();
+  var me=race.runners[1];
+  return {rank:me?me.rank:1, p:me?me.prog:0};
 }
 function startRace(){
   if(race.running) return;
-  race.running=true; race.el=0; race.last=performance.now(); race.lastCp=-1; race.pop=null;
+  race.running=true; race.el=0; race.last=performance.now(); race.pop=null;
+  race.msgHalf=false; race.msgThird=false; race.msgUntil=0;
+  race.evs=makeTrack();
+  race.runners=makeRunners(race.strat);
+  resetSprint(2);
   $('btnRaceStart').style.display='none';
   $('raceResult').style.display='none';
   $('raceLive').textContent='RUNNING';
-  $('raceInfo').textContent='달리는 중...';
+  $('raceInfo').textContent='달리는 중... ⚡ 스퍼트 버튼은 구간 타이밍에 맞춰 눌러요.';
+  var tk=$('raceTicker'); if(tk) tk.classList.add('on');
+  var me=race.runners[1];
+  raceSay('출발! '+me.name+' 페르소나가 튀어 나갑니다',3);
   var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if(reduce){ race.el=9; finishRace(); return; }
+  if(reduce){
+    var guard=0;
+    while(me.prog<1 && guard<800){
+      updateRanks();
+      race.runners.forEach(function(r){
+        if(r.cpBonus>0) r.cpBonus-=0.03;
+        if(r.prog<1) r.prog=Math.min(1,r.prog+laneSpeed(r)*0.03);
+      });
+      race.el+=0.03; guard++;
+    }
+    finishRace(); return;
+  }
   var tick=function(now){
     var dt=(now-race.last)/1000; race.last=now;
-    race.el+=dt*race.speed;
-    var out=raceDraw(race.el);
-    var st=STRATS[race.strat];
-    var rk=raceRank(race.el);
-    var p=rk.p;
-    var cp=p>=2/3?2:(p>=1/3?1:0);
-    if(race.lastCp!==cp){
-      race.lastCp=cp;
-      race.pop={text:(cp===0?'출발!':(cp===1?'오르막 구간!':'바람 구간!')),t:performance.now()};
-      SFX.tick();
+    if(dt>0.06) dt=0.06;
+    race.el+=dt;
+    if(race.sprintT>0) race.sprintT-=dt;
+    updateRanks();
+    race.runners.forEach(function(r){
+      if(r.cpBonus>0) r.cpBonus-=dt;
+      if(r.prog>=1) return;
+      var prevCp=Math.floor(r.prog*3);
+      r.prog=Math.min(1,r.prog+laneSpeed(r)*dt);
+      var cp=Math.floor(r.prog*3);
+      if(cp>prevCp && r.me && r.skillKey==='empathyR') r.cpBonus=1.2;
+    });
+    /* 구간 진입 중계 */
+    race.runners.forEach(function(r){
+      var e=inEventZone(r.prog);
+      if(e && !e.said){
+        e.said=true;
+        var t=TRACK_TYPES[e.type];
+        var who=r.me?'내 페르소나':r.name;
+        raceSay(t.label+'! '+who+'가 구간에 들어섰어요',1);
+        race.pop={text:t.label+' 구간!',t:performance.now()};
+        SFX.tick();
+      }
+    });
+    var me=race.runners[1];
+    var order=race.runners.slice().sort(function(a,b){ return b.prog-a.prog; });
+    $('raceLive').innerHTML='<b>'+me.rank+'위</b> '+Math.round(me.prog*100)+'%';
+    var b=$('btnSprint');
+    if(b){
+      var zone=!!inEventZone(me.prog);
+      b.classList.toggle('ready', zone && race.sprint>0 && me.prog<1);
     }
-    $('raceInfo').textContent=st.notes[cp];
-    $('raceLive').innerHTML='<b>'+rk.rank+'위</b> '+Math.round(p*100)+'%';
-    if(race.el<2.72){ race.raf=requestAnimationFrame(tick); }
-    else{ finishRace(); }
+    /* 진행 단계 멘트 */
+    if(me.prog>2/3 && !race.msgThird){ race.msgThird=true; raceSay('마지막 구간! 결승선이 보여요',2); }
+    else if(me.prog>1/3 && !race.msgHalf){ race.msgHalf=true; raceSay('절반을 넘었어요 · 지금 '+me.rank+'위',1); }
+    var msg=$('raceMsg');
+    if(msg && msg.textContent!==race.msg) msg.textContent=race.msg;
+    raceDraw();
+    if(me.prog>=1){ finishRace(); }
+    else{ race.raf=requestAnimationFrame(tick); }
   };
   race.raf=requestAnimationFrame(tick);
 }
-function stopRaceLoop(){ if(race.raf){ cancelAnimationFrame(race.raf); race.raf=null; } race.running=false; }
+function stopRaceLoop(){ if(race.raf){ cancelAnimationFrame(race.raf); race.raf=null; } race.running=false; updateSprintUI(); var tk=$('raceTicker'); if(tk) tk.classList.remove('on'); }
 function finishRace(){
   stopRaceLoop();
-  var st=STRATS[race.strat];
-  var mine=st.seg[0]+st.seg[1]+st.seg[2];
-  var times=[{name:RIVALS[0].name,t:RIVALS[0].seg[0]+RIVALS[0].seg[1]+RIVALS[0].seg[2]},
-             {name:(S.nickname||'ME'),t:mine,me:true},
-             {name:RIVALS[1].name,t:RIVALS[1].seg[0]+RIVALS[1].seg[1]+RIVALS[1].seg[2]}];
-  times.sort(function(a,b){ return a.t-b.t; });
-  var rank=times.findIndex(function(x){ return x.me; })+1;
-  S.games.race.done=true; S.games.race.rank=rank; S.games.race.time=mine.toFixed(2);
+  var me=race.runners[1];
+  var ahead=race.runners.filter(function(r){ return !r.me && r.prog>=1; }).length;
+  var rank=ahead+1;
+  var time=race.el.toFixed(2);
+  S.games.race.done=true; S.games.race.rank=rank; S.games.race.time=time;
+  S.games.race.skill=race.skillKey; S.games.race.sprintUsed=Math.max(0,2-race.sprint);
   SFX.good(); burst(26);
   save();
-  logWorld({key:'race', place:'달리기 트랙', title:'전략', summary:st.name+' → '+rank+'위 ('+mine.toFixed(2)+'초)'});
-  showRaceResult(false);
+  var st=STRATS[race.strat];
+  logWorld({key:'race', place:'달리기 트랙', title:'전략', summary:st.name+' → '+rank+'위 ('+time+'초)'});
   $('raceLive').textContent='FINISH';
-  raceDraw(9);
+  $('raceInfo').textContent='결승선 통과! 다시 달리려면 아래 [다시 달리기]를 눌러요.';
+  setTicker(rank===1?'🏁 결승선 통과! '+rank+'위!' : '🏁 결승선 통과 · '+rank+'위');
+  raceDraw();
+  showRaceResult(false);
 }
 function showRaceResult(fromSaved){
   var st=STRATS[S.games.race.strat||race.strat];
+  var skill=race.skill||raceSkill(S.axesAdj||S.axes);
   var box=$('raceResult');
   box.style.display='block';
   var rank=S.games.race.rank||1, time=S.games.race.time||'0.00';
+  var used=(typeof S.games.race.sprintUsed==='number')?S.games.race.sprintUsed:Math.max(0,2-race.sprint);
+  var evs={};
+  race.evs.forEach(function(e){ evs[e.type]=(evs[e.type]||0)+1; });
+  var evTxt=Object.keys(evs).map(function(k){ return TRACK_TYPES[k].label+' ×'+evs[k]; }).join(' · ')||'기본 트랙';
   box.innerHTML='<div class="panel">'+
     '<div class="resulthead"><span class="r1">'+rank+'위</span><span class="r2">기록 <b>'+time+'</b>초 · 전략 <b>'+st.name+'</b></span></div>'+
-    '<div class="seglist"><div>· '+st.notes[0]+'</div><div>· '+st.notes[1]+'</div><div>· '+st.notes[2]+'</div></div>'+
-    '<div class="note note--gold" style="margin-top:10px"><span class="ico">🏁</span><span>이기는 성향은 없어요. <b>성향 × 전략</b>이 결과를 만들어요.</span></div>'+
+    '<div class="seglist"><div>· 스킬 '+skill.icon+' <b>'+esc(skill.name)+'</b> — '+esc(skill.desc)+'</div>'+
+    '<div>· 트랙 '+esc(evTxt)+'</div>'+
+    '<div>· 스퍼트 '+Math.max(0,used)+'회 사용</div></div>'+
+    '<div class="note note--gold" style="margin-top:10px"><span class="ico">🏁</span><span>이기는 성향은 없어요. <b>성향 × 스킬 × 전략</b>이 결과를 만들어요.</span></div>'+
     '</div>'+
     '<div style="height:10px"></div>'+
     '<div class="btn-row"><button class="btn btn--ghost btn--sm" id="btnRaceAgain">다시 달리기</button>'+
     '<button class="btn btn--mint btn--sm" id="btnRaceBack">월드로 ◀</button></div>';
-  $('btnRaceStart').style.display = fromSaved?'none':'none';
+  $('btnRaceStart').style.display='none';
   $('btnRaceAgain').addEventListener('click', function(){
     $('raceResult').style.display='none';
     $('btnRaceStart').style.display='flex';
     $('btnRaceStart').textContent='출발 ▶';
-    raceDraw(0);
+    S.games.race.done=false; S.games.race.rank=null; S.games.race.time=null; delete S.games.race.sprintUsed; save();
+    race.evs=makeTrack(); race.runners=makeRunners(race.strat); race.el=0;
+    resetSprint(2);
+    raceDraw();
     $('raceLive').textContent='READY';
+    $('raceInfo').textContent='내 페르소나 추천: '+STRATS[personaStrat(S.axesAdj||S.axes)].name+' · ⚡ 스퍼트는 구간 타이밍에 맞춰 눌러 봐요.';
+    setTicker('새 트랙이에요! 출발을 눌러 주세요.');
   });
   $('btnRaceBack').addEventListener('click', function(){ go(6); });
 }
@@ -4586,9 +4862,8 @@ function renderQuizGame(){
   $('qzState').textContent = g.phase==='ask'?'AI의 답을 검토해요':(g.phase==='pick'?'내 답을 골라요':'결과');
 
   var dom=dominantKey(axes), domKey=dom.slice(0,-1);
-  var domAxis=AXES.filter(function(a){ return domKey===a.key; })[0];
-  var domSideName=(axes[domKey]>=50)?domAxis.rightName:domAxis.leftName;
-  var reason='내 데이터 '+domAxis.left+' '+axes[domKey]+'% → '+domSideName+'이라 이 답을 골랐어.';
+  var dst=axisStrength(axes,domKey);
+  var reason='내 데이터 '+dst.name+' '+dst.pct+'% → 이 답을 골랐어.';
 
   var html='<div class="qn">Q. '+esc(q.q)+'</div>'+
     '<div class="aitip"><canvas id="quizAvatar" width="64" height="64"></canvas>'+
@@ -4791,6 +5066,62 @@ function introText(axes){
   var shorts=AXES.map(function(a){ return rules[a.key].short; });
   return '안녕, 나는 '+typeLine(axes)+'. 나는 '+shorts.join(', ')+' 편이에요.';
 }
+/* ---- 수업 후 혼자 쓰는 AI 자기성찰 프롬프트 ---- */
+function buildReflectionPrompt(){
+  var ax=S.axesAdj||S.axes, rf=S.reflect||{};
+  var axesLine=AXES.map(function(a){ return axisStrengthText(ax,a.key); }).join(' · ');
+  function val(s,empty){ return (s&&String(s).trim())?String(s).trim():empty; }
+  var L=[];
+  L.push('안녕! 나는 중학생이야. 오늘 수업에서 AI 페르소나를 만들면서 나에 대해 알아봤어.');
+  L.push('너는 내 이야기를 잘 들어 주는 다정한 선생님처럼 도와줘.');
+  L.push('');
+  L.push('[내 소개]');
+  L.push('- 별명: '+(S.nickname||'학생'));
+  L.push('- 지금의 나: '+axesLine);
+  L.push('  (계획↔즉흥, 도전↔신중, 주도↔협력, 공감↔해결 중 지금 강한 쪽이야)');
+  L.push('- 내가 나에 대해 새로 알게 된 것: '+val(rf.learned,'아직 못 적었어. 같이 이야기하면서 찾아보고 싶어.'));
+  L.push('- 이 성향을 살려 해 보고 싶은 일: '+val(rf.want,'아직 못 정했어. 내 성향에 맞는 걸 같이 골라 줘.'));
+  L.push('- 10년 뒤, 되고 싶은 사람: '+val(rf.ten,'아직 모르겠어. 내 성향으로 어떤 사람이 될 수 있을지 같이 상상해 보자.'));
+  L.push('');
+  L.push('[부탁 1] 내 성향의 강점을 살려서, 이번 주에 학교에서 바로 해 볼 수 있는 작은 도전 2가지를 제안해 줘.');
+  L.push('  (30분 안에 끝낼 수 있고, 부담 없는 것으로. 왜 나에게 맞는지도 한 줄씩 알려 줘.)');
+  L.push('[부탁 2] 내 성향 때문에 조심하면 좋을 점 1가지를 알려 줘. 나를 나무라지 말고 다정하게.');
+  L.push('[부탁 3] 마지막에, 내가 직접 답을 써 볼 수 있는 질문 2개를 나에게 해 줘.');
+  L.push('');
+  L.push('답은 반말로, 짧고 따뜻하게 해 줘. 어려운 말은 쓰지 말아 줘.');
+  return L.join('\n');
+}
+function refreshPromptBox(){
+  var t=buildReflectionPrompt();
+  var box=$('promptBox'); if(box) box.value=t;
+  return t;
+}
+function legacyCopy(text, done, fail){
+  var ta=document.createElement('textarea');
+  ta.value=text; ta.setAttribute('readonly','');
+  ta.style.position='fixed'; ta.style.top='0'; ta.style.left='-9999px'; ta.style.opacity='0';
+  document.body.appendChild(ta);
+  var ok=false;
+  try{ ta.focus(); ta.select(); ta.setSelectionRange(0,text.length); ok=document.execCommand('copy'); }catch(e){ ok=false; }
+  document.body.removeChild(ta);
+  if(ok) done(); else fail();
+}
+function copyReflectionPrompt(){
+  var t=refreshPromptBox();
+  var done=function(){ toast('프롬프트를 복사했어요! AI에게 붙여 넣어 보세요'); SFX.coin(); burst(18); };
+  var fail=function(){
+    var d=$('promptDetails'); if(d) d.open=true;
+    var box=$('promptBox');
+    if(box){ try{ box.focus(); box.select(); box.setSelectionRange(0,box.value.length); }catch(e){} }
+    toast('아래 칸의 글을 길게 눌러 복사해 주세요');
+  };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(t).then(done, function(){ legacyCopy(t,done,fail); });
+  }else{
+    legacyCopy(t,done,fail);
+  }
+}
+
 function renderCard(){
   var axes=S.axesAdj||S.axes, rules=buildRules(axes);
   var html='<div class="cp-top"><div>'+
@@ -4840,6 +5171,7 @@ function renderCard(){
   html+='<div class="cp-foot">AI는 내 마음을 읽지 않아요 · 내가 준 선택과 규칙대로 움직여요.<br>이건 정답이 아니라 지금의 나를 비춰 보는 거울이에요.<br>회천중학교 · 2026.11.24</div>';
   $('cardPreview').innerHTML=html;
   setTimeout(function(){ var c=$('cardAvatar'); if(c) animateAvatar(c,S.avatar,{}); },0);
+  refreshPromptBox();
   var b2=$('btnBonus2'); if(b2) b2.style.display = bonusUnlocked()?'flex':'none';
 }
 function drawCard(){
@@ -5935,6 +6267,9 @@ function bind(){
   $('btnPbAvatarOnly').addEventListener('click', pbAvatarOnly);
   $('pbFile').addEventListener('change', pbPickFiles);
   $('btnRaceStart').addEventListener('click', startRace);
+  $('btnSprint').addEventListener('click', sprintHit);
+  $('btnPromptCopy').addEventListener('click', copyReflectionPrompt);
+  $('promptDetails').addEventListener('toggle', function(){ if(this.open) refreshPromptBox(); });
   $('btnRestart').addEventListener('click', function(){ resetAll(); });
   document.addEventListener('visibilitychange', function(){
     if(document.hidden){ stopWorldLoop(); pbStopOverlay(); }
@@ -5944,7 +6279,7 @@ function bind(){
   window.addEventListener('resize', function(){
     if(current===1) paintAvatarScreen();
     if(current===6) drawWorld();
-    if(current===9) raceDraw(race.el||0);
+    if(current===9) raceDraw();
     if(current===16){ pbDrawOverlay(0); if(!PB.raf) pbStartOverlay(); }
   });
   window.addEventListener('beforeunload', function(){ save(); });
