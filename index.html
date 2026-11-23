@@ -534,6 +534,8 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:0;backg
 .pb-stage video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1);background:#0B0A26}
 .pb-stage .pb-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none}
 #pbAvatarW{position:absolute;right:1%;bottom:0;width:44%;aspect-ratio:48/64;pointer-events:none;filter:drop-shadow(0 3px 0 rgba(0,0,0,.35))}
+/* 아바타 단독 모드: 합성 결과처럼 가운데 아래에 크게 (미리보기 = 결과) */
+#pbStage.pb-av #pbAvatarW{right:auto;left:50%;transform:translateX(-50%);width:46.4%;bottom:5.4%}
 #pbAvatarW canvas{display:block;width:100%;height:100%}
 .pb-off{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:7px;text-align:center;padding:16px;background:linear-gradient(180deg,rgba(23,21,66,.96),rgba(12,11,38,.96))}
 .pb-off b{font-size:12.5px;color:var(--gold)}
@@ -6288,6 +6290,9 @@ var PB_W=PB_CW+PB_MARGIN*2;
 var PB_CELL0=PB_HEAD;
 var PB_H=PB_CELL0+PB_CH*4+PB_GAP*3+PB_FOOT;
 var PB_EXPR=[null,1,6,7]; /* 1컷 기본 · 2컷 활짝 · 3컷 놀람 · 4컷 별눈 */
+/* 미리보기 오버레이(#pbAvatarW 의 width:44% · right:1%)와 같은 비율.
+   네 컷 모두 아바타를 오른쪽 아래에 세워야 미리보기와 결과가 같고, 왼쪽 사람 얼굴을 가리지 않는다. */
+var PB_AV_W=0.44, PB_AV_R=0.01;
 var PB={mode:'camera',theme:0,cam:'idle',stream:null,ready:false,photos:[],photoUrls:[],cuts:[],busy:false,lastCanvas:null,timer:null,raf:null,t0:0};
 
 function pbTheme(){ return PB_THEMES[clamp(PB.theme|0,0,PB_THEMES.length-1)]; }
@@ -6345,6 +6350,7 @@ function pbRenderShots(){
 function pbUpdateModeUI(){
   var off=$('pbOff'), still=$('pbStill'), vid=$('pbVideo'), badge=$('pbNum'), label=$('pbMode'), shoot=$('btnPbShoot');
   if(!off||!still||!vid) return;
+  var stg=$('pbStage'); if(stg) stg.classList.toggle('pb-av', PB.mode==='avatar');
   var camDead=(PB.cam==='denied'||PB.cam==='failed'||PB.cam==='unsupported');
   off.style.display=(PB.mode==='camera'&&camDead)?'flex':'none';
   vid.style.display=(PB.mode==='camera'&&PB.cam==='on')?'block':'none';
@@ -6589,10 +6595,11 @@ function pbCell(ctx,th,i,x,y,w,h){
     var avH=hasPhoto?[420,455,405,470][i]:520;
     var sp=spriteFor(S.avatar,false,0,PB_EXPR[i]);
     var k=avH/AV.H, aw=AV.W*k;
-    var cx=hasPhoto?((i%2===0)?x+w-38-aw/2:x+38+aw/2):x+w/2;
-    var bottom=hasPhoto?y+h-4:y+h-34;
+    /* 사진 컷은 네 컷 모두 미리보기와 같은 오른쪽 아래 고정(1·3컷/2·4컷 자리가 뒤바뀌지 않게) */
+    var cx=hasPhoto?(x+w-w*PB_AV_R-aw/2):x+w/2;
+    var bottom=hasPhoto?(y+h-2):(y+h-34);
     ctx.globalAlpha=.3; ctx.fillStyle='#000';
-    ctx.beginPath(); ctx.ellipse(cx,bottom-8,aw*0.34,12,0,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(cx,bottom-9,aw*0.34,10,0,0,Math.PI*2); ctx.fill();
     ctx.globalAlpha=1;
     ctx.imageSmoothingEnabled=false;
     ctx.drawImage(sp,Math.round(cx-aw/2),Math.round(bottom-avH),Math.round(aw),Math.round(avH));
@@ -6719,7 +6726,7 @@ function pbAvatarOnly(){
   pbStopCam();
   PB.mode='avatar'; PB.photos=[]; PB.photoUrls=[]; PB.cuts=[]; PB.lastCanvas=null;
   var r=$('pbResult'); if(r) r.style.display='none';
-  pbRenderShots(); pbUpdateModeUI();
+  pbRenderShots(); pbUpdateModeUI(); pbStartOverlay();
   toast('아바타 단독 네컷 모드예요');
 }
 function pbRetake(){
