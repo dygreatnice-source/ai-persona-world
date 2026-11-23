@@ -2896,6 +2896,8 @@ function navPop(state){
   }
   if(scr===null){ navStepUp(); return; }
   if(scr===current){ navStepUp(); return; }   /* 여유분 엔트리 : 부모로 */
+  /* 기록을 지운 뒤(처음부터)에는 지워진 화면들로 돌아가지 않는다 */
+  if(scr!==0 && !S.nickname && answeredTotal()===0) scr=0;
   if(nav.length>=2 && nav[nav.length-2]===scr) nav.pop();
   else if(nav[nav.length-1]!==scr) nav.push(scr);
   go(scr,false,'pop');
