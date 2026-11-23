@@ -4590,15 +4590,6 @@ function renderRaceScreen(){
     raceDraw();
   }
 }
-function distAt(el, seg){
-  var cum=0;
-  for(var i=0;i<3;i++){
-    var d=seg[i];
-    if(el<=cum+d) return (i+(el-cum)/d)/3;
-    cum+=d;
-  }
-  return 1;
-}
 function raceDraw(){
   var c=$('raceCanvas'); if(!c) return;
   var cssW=c.clientWidth||390;
