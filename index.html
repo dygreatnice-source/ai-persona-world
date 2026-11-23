@@ -882,6 +882,8 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:0;backg
     <p class="lead">관찰 포인트: 내 페르소나가 <b>규칙대로 말하나요?</b></p>
     <div class="panel panel--tight"><div class="chat" id="chat"></div></div>
     <div class="talkopts" id="talkOpts"></div>
+    <div style="height:8px"></div>
+    <button class="btn btn--ghost btn--sm" id="btnTalkReplay">🔄 다시 대화하기</button>
     <div id="talkEnd" style="display:none;margin-top:12px"></div>
     <div style="height:16px"></div>
   </section>
@@ -899,6 +901,11 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:0;backg
       <span>📸 페르소나랑 네컷 찍기</span>
       <span style="font-size:10.5px;font-weight:700;opacity:.78;letter-spacing:0">4컷 인생네컷 · 저장해서 패들렛에 올리기</span>
     </button>
+    <div style="height:10px"></div>
+    <div class="panel">
+      <p class="mini" style="margin:0 0 9px;text-align:center;font-size:12px;color:#A6A1D6">내 카드·네컷을 <b style="color:var(--gold)">수업 패들렛</b>에 올려요.</p>
+      <a class="btn btn--gold btn--sm" style="text-decoration:none" href="https://padlet.com/ddyygreatnice/padlet-s025qev0gd2dcqtirvgf" target="_blank" rel="noopener">📎 패들렛 바로 열기</a>
+    </div>
     <div style="height:14px"></div>
     <button class="btn btn--gold" id="btnBonus2" style="display:none">BONUS STAGE ▶</button>
     <div style="height:10px"></div>
@@ -1066,6 +1073,7 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:0;backg
         <span class="ico">📌</span>
         <span><b>패들렛에 올리는 법</b><br>저장한 네컷 사진을 선생님이 안내한 패들렛에 올려보세요!<br>사진을 <b>길게 눌러</b> ‘이미지 저장’ → 패들렛 게시판에서 <b>파일 첨부</b>.</span>
       </div>
+      <a class="btn btn--gold btn--sm" style="text-decoration:none;margin-top:10px" href="https://padlet.com/ddyygreatnice/padlet-s025qev0gd2dcqtirvgf" target="_blank" rel="noopener">📎 패들렛 바로 열기</a>
       <p class="mini">저장 버튼이 안 되면 사진을 <b>길게 눌러</b> 이미지로 저장해요.</p>
     </div>
     <div style="height:14px"></div>
@@ -2836,7 +2844,64 @@ function dominantKey(axes){
    5. 화면 전환
    ========================================================= */
 var current=0;
-function go(n, skipSave){
+/* ---------- 모바일 뒤로 가기 : 화면 계층 ----------
+   뒤로 가기를 눌러도 사이트 밖으로 튕기지 않고,
+   미니게임/이벤트 → 월드 → MISSION 03 … 처럼 부모 화면으로 올라간다. */
+var PARENT={1:0,2:1,3:2,4:3,5:4,6:5,7:6,8:6,9:6,10:6,11:6,12:6,13:12,14:12,15:12,16:8};
+var nav=[0], navHist=false, navBacking=false;
+function navInit(screen){
+  nav=[screen]; navHist=false; navBacking=false;
+  try{
+    if(!(window.history && window.history.pushState && window.history.replaceState)) return;
+    window.history.replaceState({pw:1,screen:screen},'');
+    navHist=true;
+  }catch(e){ navHist=false; }
+}
+/* 이어서 하기 · 처음부터 : 지금 화면을 기록의 기준점으로 삼는다 */
+function navReset(screen){
+  nav=[screen]; navBacking=false;
+  if(!navHist) return;
+  try{
+    window.history.replaceState({pw:1,screen:screen},'');
+    if(screen!==0) window.history.pushState({pw:1,screen:screen,guard:1},'');
+  }catch(e){}
+}
+function navRecord(prev,n){
+  if(!navHist || n===prev) return;
+  navBacking=false;
+  if(nav.length>=2 && nav[nav.length-2]===n){
+    nav.pop();
+    navBacking=true;
+    try{ window.history.back(); }catch(e){ navBacking=false; }
+    return;
+  }
+  nav.push(n);
+  try{ window.history.pushState({pw:1,screen:n},''); }catch(e){ navHist=false; }
+}
+/* 뒤로 가기가 더 갈 곳이 없을 때 : 부모 화면으로 한 칸씩 올라간다 */
+function navStepUp(){
+  var up=PARENT[current];
+  if(typeof up!=='number') return false;
+  nav=[up];
+  try{ window.history.replaceState({pw:1,screen:up},''); }catch(e){}
+  go(up,false,'pop');
+  try{ window.history.pushState({pw:1,screen:up,guard:1},''); }catch(e){}
+  return true;
+}
+function navPop(state){
+  var scr=(state && typeof state.screen==='number')?state.screen:null;
+  if(navBacking){
+    navBacking=false;
+    if(scr===current) return;
+  }
+  if(scr===null){ navStepUp(); return; }
+  if(scr===current){ navStepUp(); return; }   /* 여유분 엔트리 : 부모로 */
+  if(nav.length>=2 && nav[nav.length-2]===scr) nav.pop();
+  else if(nav[nav.length-1]!==scr) nav.push(scr);
+  go(scr,false,'pop');
+}
+function go(n, skipSave, hm){
+  var prev=current;
   current=n; S.screen=n; S.maxScreen=Math.max(S.maxScreen||0,n);
   var screens=document.querySelectorAll('.screen');
   for(var i=0;i<screens.length;i++) screens[i].classList.toggle('on', +screens[i].dataset.screen===n);
@@ -2849,6 +2914,7 @@ function go(n, skipSave){
   render(n);
   if(!skipSave) save();
   checkBadges();
+  if(hm!=='pop') navRecord(prev,n);
 }
 function render(n){
   updateHuds();
@@ -2923,7 +2989,8 @@ function resumeGame(){
   var n=S.screen||1;
   if(n===0) n=1;
   if(n===7) n=6;
-  go(n);
+  navReset(n);
+  go(n,false,'pop');
 }
 function startDepth(){
   if(answeredCount()<BASE_N){ toast('24문항을 먼저 마쳐 주세요'); return; }
@@ -2952,10 +3019,11 @@ function resetAll(){
   try{ localStorage.removeItem(KEY); }catch(e){}
   S=freshState();
   var chat=$('chat'); if(chat) chat.innerHTML='';
-  var te=$('talkEnd'); if(te) te.style.display='none';
+  var te=$('talkEnd'); if(te){ te.style.display='none'; te.innerHTML=''; }
   $('savedBox').style.display='none';
   $('nickInput').value='';
-  go(0);
+  navReset(0);
+  go(0,false,'pop');
   toast('저장된 기록을 지웠어요');
 }
 
@@ -4354,6 +4422,7 @@ function walkTo(nd,cb){
   player.walking={from:{x:player.x,y:player.y},to:{x:nd.x,y:nd.y-2},t0:performance.now(),dur:560,cb:cb};
 }
 function renderWorld(){
+  player.walking=null;   /* 걷던 중 화면을 떠났어도 다시 들어오면 노드를 누를 수 있게 */
   var nodes=$('nodes'); nodes.innerHTML='';
   NODES.forEach(function(nd){
     var done=isDone(nd.key);
@@ -4384,6 +4453,7 @@ function renderWorld(){
 function visitNode(nd){
   if(player.walking) return;
   walkTo(nd, function(){
+    if(current!==6) return;          /* 걷는 중에 다른 화면으로 갔으면 무시 */
     if(nd.kind==='event') openEvent(nd.ev);
     else if(nd.kind==='race') go(9);
     else if(nd.kind==='quiz') go(10);
@@ -5324,7 +5394,7 @@ function renderQuizGame(){
   var pr=quizPersonaPick(q,axes);
   g.pick=pr.pick; g.conf=pr.conf;
   $('qzNum').textContent='QUIZ '+String(g.idx+1).padStart(2,'0')+' / '+QUIZ.length;
-  $('qzState').textContent = g.phase==='ask'?'AI의 답을 검토해요':(g.phase==='pick'?'내 답을 골라요':'결과');
+  $('qzState').innerHTML = (g.phase==='ask'?'AI의 답을 검토해요':(g.phase==='pick'?'내 답을 골라요':'결과'))+'<span id="qzCombo"></span>';
 
   var dom=dominantKey(axes), domKey=dom.slice(0,-1);
   var dst=axisStrength(axes,domKey);
@@ -5423,7 +5493,8 @@ function submitQuiz(){
 function renderQuizSummary(){
   var g=S.games.quiz;
   $('qzNum').textContent='QUIZ RESULT';
-  $('qzState').textContent='결과';
+  $('qzState').innerHTML='결과';
+  var tb=$('qtimerBar'); if(tb){ tb.style.width='0%'; }
   $('qcard').innerHTML='<div class="qn">퀴즈 대회 결과</div>'+
     '<div class="qscore">'+
       '<div><b>'+g.correct+'/'+QUIZ.length+'</b><span>정답</span></div>'+
@@ -5433,18 +5504,30 @@ function renderQuizSummary(){
     '<p class="mini" style="margin-top:10px">AI의 확신도는 정답률이 아니에요. 확신이 높아도 틀릴 수 있어요.</p>';
   $('qzAfter').innerHTML='<div class="note note--gold" style="margin:0"><span class="ico">🔧</span><span>AI의 답이 틀렸다면, <b>규칙이 부족했다</b>는 뜻이에요. RULE EDITOR에서 고칠 수 있어요.</span></div>'+
     '<div style="height:10px"></div>'+
+    '<button class="btn btn--gold" id="btnQuizAgain">🔄 다시 풀기</button>'+
+    '<div style="height:8px"></div>'+
     '<div class="btn-row"><button class="btn btn--ghost btn--sm" id="btnQuizFix">규칙 고치기</button>'+
     '<button class="btn btn--mint btn--sm" id="btnQuizBack">월드로 ◀</button></div>';
   logWorld({key:'quiz', place:'퀴즈 아레나', title:'퀴즈 대회', summary:g.correct+'/'+QUIZ.length+' 정답 · 유지 '+g.kept+' · 수정 '+g.fixed});
   $('btnQuizFix').addEventListener('click', function(){ go(5); });
   $('btnQuizBack').addEventListener('click', function(){ go(6); });
+  $('btnQuizAgain').addEventListener('click', function(){ resetQuizGame(); });
+}
+function resetQuizGame(){
+  if(typeof quizTimerId!=='undefined' && quizTimerId){ clearInterval(quizTimerId); quizTimerId=null; }
+  S.games.quiz={idx:0, phase:'ask', pick:0, conf:0, kept:0, fixed:0, correct:0, combo:0, results:[], done:false};
+  save(); SFX.whoosh();
+  renderQuizGame();
+  window.scrollTo(0,0);
+  toast('1번 문제부터 다시 풀어요!');
 }
 
 /* =========================================================
    16. TALK
    ========================================================= */
-function talkAdd(who, text, cfg){
+function talkBubble(who, text){
   var chat=$('chat');
+  if(!chat) return;
   var wrap=document.createElement('div');
   wrap.className='msg '+who;
   if(who==='friend'||who==='persona'){
@@ -5459,19 +5542,38 @@ function talkAdd(who, text, cfg){
   chat.appendChild(wrap);
   chat.scrollTop=chat.scrollHeight;
 }
+function talkAdd(who, text){
+  var g=S.games.talk;
+  if(!g.lines) g.lines=[];
+  g.lines.push({who:who, text:text});
+  talkBubble(who, text);
+}
+function talkRebuild(){
+  var chat=$('chat'); if(!chat) return;
+  chat.innerHTML='';
+  (S.games.talk.lines||[]).forEach(function(l){ talkBubble(l.who, l.text); });
+}
 function renderTalk(){
   var g=S.games.talk;
-  var chat=$('chat');
-  if(g.step===0 && chat.children.length===0){
+  if(!g.lines) g.lines=[];
+  var chat=$('chat'); if(!chat) return;
+  /* 대화 내용이 비어 있으면(재진입·불러오기·이전 저장본) 처음부터 다시 시작 */
+  if(!g.lines.length){
+    g.step=0; g.done=false;
+    $('talkEnd').style.display='none';
+    $('talkEnd').innerHTML='';
     talkAdd('friend', TALK_LINE.friend1);
     talkAdd('persona', TALK_LINE.first[dominantKey(S.axesAdj||S.axes)]);
     g.step=1;
+    save();
   }
+  if(chat.children.length!==g.lines.length) talkRebuild();
   drawTalkOpts();
 }
 function drawTalkOpts(){
   var g=S.games.talk;
   var box=$('talkOpts'); box.innerHTML='';
+  var rp=$('btnTalkReplay'); if(rp) rp.style.display = g.done?'none':'flex';
   if(g.done){
     renderTalkEnd();
     return;
@@ -5516,11 +5618,23 @@ function renderTalkEnd(){
     '<p style="font-size:12px;color:var(--mint);font-weight:700;margin-bottom:6px">관찰 포인트</p>'+
     '<p style="font-size:13.5px;font-weight:700;line-height:1.5">내 페르소나는 <b style="color:var(--gold)">'+esc(typeLine(S.axesAdj||S.axes))+'</b> 답게 말했나요?<br>마음에 안 들면 규칙을 다시 고칠 수 있어요.</p>'+
     '</div><div style="height:10px"></div>'+
+    '<button class="btn btn--gold btn--sm" id="btnTalkAgain">🔄 다시 대화하기</button>'+
+    '<div style="height:8px"></div>'+
     '<div class="btn-row"><button class="btn btn--ghost btn--sm" id="btnTalkFix">규칙 고치기</button>'+
     '<button class="btn btn--mint btn--sm" id="btnTalkBack">월드로 ◀</button></div>';
   $('btnTalkFix').addEventListener('click', function(){ go(5); });
   $('btnTalkBack').addEventListener('click', function(){ go(6); });
+  $('btnTalkAgain').addEventListener('click', function(){ resetTalk(); });
   $('talkOpts').innerHTML='';
+}
+function resetTalk(){
+  S.games.talk={step:0, done:false, lines:[]};
+  var chat=$('chat'); if(chat) chat.innerHTML='';
+  var te=$('talkEnd'); if(te){ te.style.display='none'; te.innerHTML=''; }
+  save(); SFX.whoosh();
+  renderTalk();
+  window.scrollTo(0,0);
+  toast('처음부터 다시 대화해요!');
 }
 
 /* =========================================================
@@ -6733,6 +6847,7 @@ function bind(){
   $('pbFile').addEventListener('change', pbPickFiles);
   $('btnRaceStart').addEventListener('click', startRace);
   $('btnSprint').addEventListener('click', sprintHit);
+  $('btnTalkReplay').addEventListener('click', function(){ resetTalk(); });
   $('btnPromptCopy').addEventListener('click', copyReflectionPrompt);
   $('promptDetails').addEventListener('toggle', function(){ if(this.open) refreshPromptBox(); });
   $('btnRestart').addEventListener('click', function(){ resetAll(); });
@@ -6748,6 +6863,7 @@ function bind(){
     if(current===16){ pbDrawOverlay(0); if(!PB.raf) pbStartOverlay(); }
   });
   window.addEventListener('beforeunload', function(){ save(); });
+  window.addEventListener('popstate', function(e){ navPop(e.state); });
 }
 function init(){
   S=freshState();
@@ -6759,6 +6875,7 @@ function init(){
   if(S.nickname){ $('nickInput').value=S.nickname; updateNickUI(); }
   renderIntro();
   refreshSaved();
+  navInit(0);
 }
 if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', init);
 else init();
